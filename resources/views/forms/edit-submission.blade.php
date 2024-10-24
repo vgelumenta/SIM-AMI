@@ -535,7 +535,7 @@
                                                                                                                 aria-roledescription="Number field"
                                                                                                                 value="1"
                                                                                                                 max="100"
-                                                                                                                step="0.01"
+                                                                                                                step="0.0000000001"
                                                                                                                 data-hs-input-number-input=""
                                                                                                                 >
                                                                                                         </div>

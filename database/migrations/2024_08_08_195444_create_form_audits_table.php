@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('link')->nullable();
             $table->foreignId('assessment_status')->nullable();
             $table->text('description')->nullable();
-            $table->tinyInteger('feedback')->nullable();
+            $table->boolean('feedback')->nullable();
             $table->text('comment')->nullable();
             $table->foreignId('verification_status')->nullable();
             $table->text('conclusion')->nullable();

@@ -15,10 +15,11 @@
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </head>
 
-<body x-data="{ showPassword: false }">
+<body class="h-screen" x-data="{ showPassword: false }">
 
     <!-- Toast -->
-    @if ($errors->any())
+
+    {{-- @if ($errors->any())
         <div id="toast-danger"
             class="absolute end-2 top-2 mb-4 flex w-full max-w-xs items-center rounded-lg bg-white p-3 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400"
             role="alert">
@@ -43,7 +44,10 @@
                 </svg>
             </button>
         </div>
-    @endif
+    @endif --}}
+
+    <x-toast></x-toast>
+
     <!-- End Toast -->
 
     <div class="flex min-h-screen items-center bg-blue-700 p-6">

@@ -1,6 +1,6 @@
 <!-- Desktop sidebar -->
 <aside :class="{ 'slide': isSideMenuOpen }"
-    class="z-50 hidden min-h-screen w-60 bg-white font-medium transition-all duration-300 ease-in-out dark:bg-gray-900 md:block">
+    class="z-40 hidden min-h-screen w-60 bg-white font-medium transition-all duration-300 ease-in-out dark:bg-gray-900 lg:block">
     <div class="border-b border-solid border-blue-800 py-2 text-center">
         <table>
             <tr>
@@ -14,7 +14,7 @@
             </tr>
         </table>
     </div>
-    <ul class="mt-2 max-h-full overflow-y-auto scrollbar-thin">
+    <ul class="max-h-full overflow-y-auto scrollbar-thin">
         <li
             class="{{ Request::is('dashboard') ? 'font-bold text-blue-800 dark:text-cool-gray-50 bg-cool-gray-50 dark:bg-gray-800' : 'text-gray-500 hover:bg-cool-gray-50 dark:hover:bg-gray-800' }}">
             <a class="flex w-full items-center justify-between px-1 py-3 pl-8" href="/dashboard">
@@ -197,10 +197,10 @@
     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-40 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center">
+    class="fixed inset-0 z-30 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center">
 </div>
 <aside
-    class="mt-18 fixed inset-y-0 z-40 mt-[72px] min-h-screen w-60 flex-shrink-0 overflow-hidden bg-cool-gray-50 scrollbar-thin dark:bg-gray-900 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
+    class="mt-18 fixed inset-y-0 z-30 mt-[72px] min-h-screen w-60 flex-shrink-0 overflow-hidden bg-cool-gray-50 scrollbar-thin dark:bg-gray-900 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
     x-show="isSideMenuOpenResponsive" x-transition:enter="transition ease-in-out duration-150"
     x-transition:enter-start="opacity-0 transform -translate-x-20" x-transition:enter-end="opacity-100"
     x-transition:leave="transition ease-in-out duration-150" x-transition:leave-start="opacity-100"
@@ -246,6 +246,21 @@
                 </a>
             </li>
 
+            <li class="relative px-6 py-2">
+                <span
+                    class="{{ Request::is('forms*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
+                <a class="{{ Request::is('forms*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
+                    href="/forms">
+                    <svg class="w-5 text-center" aria-hidden="true" fill="none" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                        </path>
+                    </svg>
+                    <span class="ml-4">Forms</span>
+                </a>
+            </li>
+
             @if ($userRole == 'PJM')
                 <li class="relative px-6 py-2">
                     <span
@@ -262,18 +277,33 @@
                     </a>
                 </li>
 
+                {{-- <li class="relative px-6 py-2">
+                    <span
+                        class="{{ Request::is('users*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
+                    <a class="{{ Request::is('users*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
+                        href="/users">
+                        <svg class="w-5 text-center" aria-hidden="true" fill="none" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z">
+                            </path>
+                        </svg>
+                        <span class="ml-4">Departments</span>
+                    </a>
+                </li> --}}
+
                 <li class="relative px-6 py-2">
                     <span
-                        class="{{ Request::is('forms*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
-                    <a class="{{ Request::is('forms*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
-                        href="/forms">
+                        class="{{ Request::is('users*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
+                    <a class="{{ Request::is('users*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
+                        href="/users">
                         <svg class="w-5 text-center" aria-hidden="true" fill="none" stroke-linecap="round"
                             stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
                             <path
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                                d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z">
                             </path>
                         </svg>
-                        <span class="ml-4">Forms</span>
+                        <span class="ml-4">Units</span>
                     </a>
                 </li>
 
@@ -308,7 +338,7 @@
                 </li>
             @endif
 
-            @if ($userRole == 'Auditee')
+            {{-- @if ($userRole == 'Auditee')
                 <li class="relative px-6 py-2">
                     <span
                         class="{{ Request::is('evaluations*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
@@ -330,7 +360,7 @@
                         <span class="ml-4">Audits</span>
                     </a>
                 </li>
-            @endif
+            @endif --}}
 
             <ul class="space-y-2 px-8 py-2">
 

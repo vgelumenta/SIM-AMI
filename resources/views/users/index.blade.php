@@ -50,8 +50,8 @@
                         <th class="px-4 py-2">#</th>
                         <th class="px-4 py-2">Name</th>
                         <th class="px-4 py-2">Email</th>
-                        <th class="px-4 py-2">Role</th>
-                        <th class="px-4 py-2">Status</th>
+                        <th class="py-2">Role</th>
+                        <th class="p-2">Status</th>
                         <th class="px-4 py-2">Last seen</th>
                         <th class="px-4 py-2">Action</th>
                     </tr>
@@ -62,7 +62,7 @@
                             <td class="px-4 py-2">{{ $loop->iteration . '.' }}</td>
                             <td class="px-4 py-2 text-start">{{ $user->name }}</td>
                             <td class="px-4 py-2 text-end">{{ $user->email }}</td>
-                            <td class="flex flex-row items-center gap-0.5 px-4 py-2 text-xs">
+                            <td class="w-1/6 space-x-0.5 py-2 text-xs">
                                 @foreach ($user->getRoleNames() as $role)
                                     @if ($role == 'PJM')
                                         <span
@@ -87,15 +87,15 @@
                                     @endif
                                 @endforeach
                             </td>
-                            <td class="px-4 py-2">
+                            <td class="p-2">
                                 @if (Cache::has('user-' . $user->id . '-is-online'))
                                     <span
-                                        class="rounded-full bg-teal-200 px-3 py-1 text-sm text-teal-500 dark:bg-teal-400 dark:text-teal-100">
+                                        class="rounded-full bg-teal-200 px-3 py-1 text-teal-500 dark:bg-teal-400 dark:text-teal-100">
                                         Online
                                     </span>
                                 @else
                                     <span
-                                        class="rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-100">
+                                        class="rounded-full bg-gray-200 px-3 py-1 text-gray-700 dark:bg-gray-700 dark:text-gray-100">
                                         Offline
                                     </span>
                                 @endif
@@ -109,11 +109,17 @@
                                 <form action="/users/{{ $user->id }}" method="POST" class="inline-block">
                                     @method('delete')
                                     @csrf
+                                    {{-- <button @click="$dispatch('open-modal')" type="button"
+                                        class="rounded border border-red-600 px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white">
+                                        <i class="fas fa-trash-alt"></i> Hapus
+                                    </button> --}}
                                     <button onclick="return confirm('Apakah Anda yakin ingin menghapus data?');"
                                         class="rounded border border-red-600 px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white">
                                         <i class="fas fa-trash-alt"></i> Hapus
                                     </button>
                                 </form>
+
+                                <x-modal title="Confirm Action" content="Are you sure you want to proceed?" />
                             </td>
                         </tr>
                     @endforeach

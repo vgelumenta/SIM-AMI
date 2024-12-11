@@ -15,6 +15,17 @@ class UnitController extends Controller
     {
         $units = Unit::latest();
 
+        foreach ($units as $unit) {
+
+            $canBeDeleted = true;
+
+            if ($unit->forms->isNotEmpty()) {
+                $canBeDeleted = false;
+            }
+
+            $unit->can_be_deleted = $canBeDeleted;
+        }
+
         return view('units.index', [
             'units' => $units->get()
         ]);

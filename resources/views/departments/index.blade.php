@@ -51,7 +51,7 @@
                         <th class="px-4 py-2">#</th>
                         <th class="px-8 py-2">Code</th>
                         <th class="px-4 py-2 text-left">Name</th>
-                        <th class="px-4 py-2">Action</th>
+                        {{-- <th class="px-4 py-2">Action</th> --}}
                     </tr>
                 </thead>
                 <tbody>
@@ -61,7 +61,7 @@
                             <td class="px-4 py-2">{{ $loop->iteration . '.' }}</td>
                             <td class="px-8 py-2">{{ $department->code }}</td>
                             <td class="px-4 py-2 text-left">{{ $department->name }}</td>
-                            <td class="grid gap-y-2 px-4 py-2 xl:block xl:space-x-2">
+                            {{-- <td class="grid gap-y-2 px-4 py-2 xl:block xl:space-x-2">
                                 <form action="/faculties/{{ $department->id }}" method="POST"
                                     class="inline-block rounded border border-red-600 px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white">
                                     @method('delete')
@@ -71,7 +71,7 @@
                                         Hapus
                                     </button>
                                 </form>
-                            </td>
+                            </td> --}}
                         </tr>
                     @endforeach
                 </tbody>

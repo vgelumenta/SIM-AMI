@@ -170,6 +170,7 @@ module.exports = {
     },
     plugins: [
         forms,
+        require('@tailwindcss/line-clamp'),
         require('tailwind-scrollbar'),
         require('flowbite/plugin'),
         require('preline/plugin'),

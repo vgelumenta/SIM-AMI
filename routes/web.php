@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditController;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DepartmentController;
@@ -19,6 +20,9 @@ Route::middleware(['guest'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Route::post('/broadcasting/auth', function () {
+    //     return Broadcast::auth(request());
+    // });
 
     Route::get('/', function () {
         return redirect('/dashboard');
@@ -50,10 +54,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/forms', FormController::class);
     Route::get('/forms/{form}/submission', [FormController::class, 'editSubmission'])->name('forms.editSubmission');
     Route::put('/forms/{form}/submission', [FormController::class, 'updateSubmission'])->name('forms.updateSubmission');
-    Route::get('/forms/{form}/asessment', [FormController::class, 'editAsessment'])->name('forms.editAsessment');
-    Route::put('/forms/{form}/asessment', [FormController::class, 'updateAsessment'])->name('forms.updateAsessment');
+    Route::get('/forms/{form}/assessment', [FormController::class, 'editAssessment'])->name('forms.editAssessment');
+    Route::put('/forms/{form}/assessment', [FormController::class, 'updateAssessment'])->name('forms.updateAssessment');
     Route::get('/forms/{form}/feedback', [FormController::class, 'editFeedback'])->name('forms.editFeedback');
     Route::put('/forms/{form}/feedback', [FormController::class, 'updateFeedback'])->name('forms.updateFeedback');
     Route::get('/forms/{form}/verification', [FormController::class, 'editVerification'])->name('forms.editVerification');
     Route::put('/forms/{form}/verification', [FormController::class, 'updateVerification'])->name('forms.updateVerification');
+    
+    Route::get('/forms/{form}/export', [FormController::class, 'export'])->name('forms.export');
+    
 });

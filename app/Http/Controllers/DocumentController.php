@@ -169,9 +169,9 @@ class DocumentController extends Controller
                                         'code' => $indicatorData['code'],
                                         'assessment' => $indicatorData['assessment'],
                                         'entry' => $indicatorData['entry'],
+                                        'link_info' => $indicatorData['link_info'],
                                         'rate_option' => $indicatorData['rate_option'] ?? null,
                                         'disable_text' => $indicatorData['disable_text'] ?? null,
-                                        'info' => $indicatorData['info'],
                                     ];
                                 }
                             }
@@ -185,7 +185,7 @@ class DocumentController extends Controller
 
         if ($request->input('action') === 'draft') {
 
-            return redirect('/documents#drafts')->with('status', $document_name . ' saved as draft!');
+            return redirect('/documents#drafts')->with('success', $document_name . ' saved as draft!');
             
         } elseif ($request->input('action') === 'submit') {
 
@@ -208,9 +208,9 @@ class DocumentController extends Controller
                 'categories.*.standards.*.competencies.*.indicators.*.code' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators.*.assessment' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators.*.entry' => 'required|string',
+                'categories.*.standards.*.competencies.*.indicators.*.link_info' => 'nullable|string',
                 'categories.*.standards.*.competencies.*.indicators.*.rate_option' => 'nullable|string',
                 'categories.*.standards.*.competencies.*.indicators.*.disable_text' => 'nullable|string',
-                'categories.*.standards.*.competencies.*.indicators.*.info' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -248,9 +248,9 @@ class DocumentController extends Controller
                                             'code' => $indicatorData['code'],
                                             'assessment' => $indicatorData['assessment'],
                                             'entry' => $indicatorData['entry'],
+                                            'link_info' => $indicatorData['link_info'],
                                             'rate_option' => $indicatorData['rate_option'] ?? null,
                                             'disable_text' => $indicatorData['disable_text'] ?? null,
-                                            'info' => $indicatorData['info'],
                                         ]);
                                     }
                                 }
@@ -260,7 +260,7 @@ class DocumentController extends Controller
                 }
             }
 
-            return redirect('/documents')->with('status', $document_name . ' saved!');
+            return redirect('/documents')->with('success', $document_name . ' created!');
         }
     }
 

@@ -3,30 +3,30 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 class FormUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $formData;
-    // public $formData = 'test';
+    protected $formId;
+    public $indicatorData;
+    public $userName;
 
     /**
      * Create a new event instance.
      */
-    // public function __construct()
-    // {
-    //     //
-    // }
-    public function __construct($formData)
+    public function __construct($formId, $indicatorData, $userName)
     {
-        $this->formData = $formData;
+        $this->formId = $formId;    // Simpan formId
+        $this->indicatorData = $indicatorData;    // Simpan indicatorData
+        $this->userName = $userName;    // Simpan userName
     }
 
     /**
@@ -34,15 +34,10 @@ class FormUpdated implements ShouldBroadcastNow
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    // public function broadcastOn()
-    // {
-    //     return new Channel('forms');
-    // }
     public function broadcastOn(): array
     {
         return [
-            // new PrivateChannel('channel-name'),
-            new Channel('forms'),
+            new PresenceChannel('forms.' . $this->formId),
         ];
     }
 }

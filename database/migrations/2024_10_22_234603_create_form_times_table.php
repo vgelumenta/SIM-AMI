@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('form_submissions', function (Blueprint $table) {
+        Schema::create('form_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('form_id')->nullable()->constrained()->onDelete('cascade');
-            $table->datetime('submission')->nullable();
+            $table->datetime('submission_time')->nullable();
             $table->datetime('submission_deadline')->nullable();
             $table->boolean('submission_extended')->default(false);
-            $table->datetime('assessment')->nullable();
+            $table->datetime('assessment_time')->nullable();
             $table->datetime('assessment_deadline')->nullable();
             $table->boolean('assessment_extended')->default(false);
-            $table->datetime('feedback')->nullable();
+            $table->datetime('feedback_time')->nullable();
             $table->datetime('feedback_deadline')->nullable();
             $table->boolean('feedback_extended')->default(false);
-            $table->datetime('verification')->nullable();
+            $table->datetime('verification_time')->nullable();
             $table->datetime('verification_deadline')->nullable();
             $table->boolean('verification_extended')->default(false);
             $table->timestamps();

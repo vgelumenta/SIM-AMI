@@ -30,6 +30,11 @@ class Form extends Model
         return $this->belongsTo(Stage::class);
     }
 
+    public function formTime()
+    {
+        return $this->hasOne(FormTime::class);
+    }
+
     public function formAccesses()
     {
         return $this->hasMany(FormAccess::class);

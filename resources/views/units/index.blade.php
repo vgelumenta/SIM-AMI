@@ -69,15 +69,19 @@
                                     <i class="fa fa-edit mr-1"></i>
                                     Ubah
                                 </a>
-                                <form action="/units/{{ $unit->id }}" method="POST"
-                                    class="inline-block rounded border border-red-600 px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white">
-                                    @method('delete')
-                                    @csrf
-                                    <button onclick="return confirm('Apakah Anda yakin ingin menghapus data?');">
-                                        <i class="fas fa-trash-alt"></i>
-                                        Hapus
-                                    </button>
-                                </form>
+                                @if ($unit->can_be_deleted)
+                                    <form action="/units/{{ $unit->id }}" method="POST"
+                                        class="inline-block rounded border border-red-600 px-3 py-1 text-sm font-medium text-red-600 transition hover:bg-red-600 hover:text-white">
+                                        @method('delete')
+                                        @csrf
+                                        <button onclick="return confirm('Apakah Anda yakin ingin menghapus data?');">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Hapus
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-gray-400">Tidak dapat dihapus</span>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

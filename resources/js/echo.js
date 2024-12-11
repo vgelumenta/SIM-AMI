@@ -9,8 +9,3 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true
 });
-
-// window.Echo.channel("forms").listen("FormUpdated", event => {
-//     console.log("test");
-//     console.log(event);
-// });

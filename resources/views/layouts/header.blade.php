@@ -1,8 +1,8 @@
-<header class="z-50 bg-cool-gray-50 transition-all duration-300 ease-in-out dark:bg-gray-800">
-    <div class="mx-10 my-4 rounded-sm bg-white px-4 py-2 shadow-md dark:bg-cool-gray-50">
-        <div class="container flex items-center justify-between">
+<header class="z-30 bg-cool-gray-50 transition-all duration-300 ease-in-out dark:bg-gray-800">
+    <div class="mx-6 my-4 rounded-sm bg-white px-4 py-2 shadow-md dark:bg-cool-gray-50">
+        <div class=" flex items-center justify-between">
             <button id="toggle-sidebar" @click="toggleSideMenu"
-                class="hidden rounded-md text-gray-500 hover:shadow-outline-blue focus:shadow-outline-blue md:block">
+                class="hidden rounded-md text-gray-500 hover:shadow-outline-blue focus:shadow-outline-blue lg:block">
                 <svg class="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                         d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
@@ -11,7 +11,7 @@
             </button>
             <!-- Mobile hamburger -->
             <button @click="toggleSideMenuResponsive"
-                class="rounded-md text-gray-500 hover:shadow-outline-blue focus:shadow-outline-blue md:hidden">
+                class="rounded-md text-gray-500 hover:shadow-outline-blue focus:shadow-outline-blue lg:hidden">
                 <svg class="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                         d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"

@@ -1,10 +1,9 @@
 <?php
 
-use App\Http\Middleware\Contact;
 use Illuminate\Foundation\Application;
-use Spatie\Permission\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
@@ -19,8 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             App\Http\Middleware\Role::class,
             App\Http\Middleware\Online::class,
-            // App\Http\Middleware\Contact::class,
-            Contact::class
+            App\Http\Middleware\Contact::class,
         ]);
 
         $middleware->alias([

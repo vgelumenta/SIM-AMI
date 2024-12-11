@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('entry');
             $table->string('rate_option')->nullable();
             $table->string('disable_text')->nullable();
-            $table->string('info')->nullable();
+            $table->string('link_info')->nullable();
             $table->timestamps();
         });
     }

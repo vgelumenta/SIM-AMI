@@ -25,7 +25,7 @@
                             </svg>
                             <span class="sr-only">Check icon</span>
                         </div>
-                        <div class="mx-2 text-sm font-medium">{{ session('status') }}</div>
+                        <div class="mx-2 text-sm font-medium">{{ session('success') }}</div>
                         <button type="button"
                             class="ms-auto inline-flex items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
                             data-dismiss-target="#toast-success" aria-label="Close">

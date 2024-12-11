@@ -51,7 +51,11 @@
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </head>
 
-<body class="flex h-screen overflow-hidden bg-cool-gray-50 dark:bg-gray-800">
+<body class="flex h-screen bg-cool-gray-50 dark:bg-gray-800">
+
+    <!-- Toast -->
+    <x-toast></x-toast>
+    <!-- End Toast -->
 
     @include('layouts.navbar')
 
@@ -60,7 +64,7 @@
         @include('layouts.header')
 
         <main
-            class="h-full w-full overflow-y-auto overflow-x-hidden px-10 scrollbar-thin dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800">
+            class="h-full w-full overflow-y-auto overflow-x-hidden px-6 scrollbar-thin dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800">
 
             {{ $slot }}
 
@@ -73,30 +77,8 @@
             document.getElementById("toggle-sidebar").addEventListener("click", function() {
                 document.querySelector("aside").classList.toggle("slide");
             });
-
-            document.querySelectorAll('input[type-currency="IDR"]').forEach((element) => {
-                element.addEventListener('keyup', function(e) {
-                    let cursorPostion = this.selectionStart;
-                    let value = parseInt(this.value.replace(/[^,\d]/g, ''));
-                    let originalLenght = this.value.length;
-                    if (isNaN(value)) {
-                        this.value = "";
-                    } else {
-                        this.value = value.toLocaleString('id-ID', {
-                            currency: 'IDR',
-                            style: 'currency',
-                            minimumFractionDigits: 0
-                        });
-                        cursorPostion = this.value.length - originalLenght + cursorPostion;
-                        this.setSelectionRange(cursorPostion, cursorPostion);
-                    }
-                });
-            });
-
-
         });
     </script>
-
     <script src="https://kit.fontawesome.com/478979d709.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/script.js') }}"></script>
     <script src="{{ asset('js/focus-trap.js') }}"></script>

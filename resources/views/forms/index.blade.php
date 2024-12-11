@@ -9,16 +9,18 @@
                 </div>
             </li>
         </ol>
-        <div class="flex items-center">
-            <a href="/forms/create"
-                class="inline-block rounded-sm border-2 border-green-400 bg-green-400 px-3 py-1 text-sm font-medium text-white transition hover:shadow-outline-green">
-                <i class="far fa-plus-square mr-2"></i>Add Form
-            </a>
-        </div>
+        @if ($userRole == 'PJM')
+            <div class="flex items-center">
+                <a href="/forms/create"
+                    class="inline-block rounded-sm border-2 border-green-400 bg-green-400 px-3 py-1 text-sm font-medium text-white transition hover:shadow-outline-green">
+                    <i class="far fa-plus-square mr-2"></i>Add Form
+                </a>
+            </div>
+        @endif
     </div>
 
     <div
-        class="h-[545px] overflow-auto rounded-sm scrollbar-thin dark:scrollbar-track-gray-400 dark:scrollbar-thumb-gray-700">
+        class="h-[545px] overflow-auto font-normal rounded-sm scrollbar-thin dark:scrollbar-track-gray-400 dark:scrollbar-thumb-gray-700">
         @if ($forms->count())
             <table class="whitespace-no-wrap w-full">
                 <thead>
@@ -46,7 +48,7 @@
                                         Isi Laporan
                                     </a>
                                 @elseif ($form->stage_id == 2 && $userRole == 'Auditor')
-                                    <a href="{{ route('forms.editAsessment', $form) }}"
+                                    <a href="{{ route('forms.editAssessment', $form) }}"
                                         class="inline-block rounded border border-blue-500 px-3 py-1 text-sm font-medium text-blue-500 transition hover:bg-blue-500 hover:text-white">
                                         <i class="fa fa-edit mr-1"></i>
                                         Periksa Laporan
@@ -63,6 +65,12 @@
                                         <i class="fa fa-edit mr-1"></i>
                                         Berikan Verifikasi Audit
                                     </a>
+                                {{-- @elseif ($form->stage_id == 5 && $userRole == 'PJM')
+                                    <a href="{{ route('forms.export', $form) }}"
+                                        class="inline-block rounded border border-blue-500 px-3 py-1 text-sm font-medium text-blue-500 transition hover:bg-blue-500 hover:text-white">
+                                        <i class="fa-solid fa-file-word"></i>
+                                        Export
+                                    </a> --}}
                                 @else
                                     <a href="{{ route('forms.show', $form) }}"
                                         class="inline-block rounded border border-blue-500 px-3 py-1 text-sm font-medium text-blue-500 transition hover:bg-blue-500 hover:text-white">

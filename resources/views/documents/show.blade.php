@@ -67,7 +67,7 @@
                                     {
                                         id: {{ $competency['id'] }},
                                         standard_id: '{{ $standard['id'] }}',
-                                        statement: '{{ $competency['statement'] }}',
+                                        statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
                                         indicators: [
                                             @if (isset($indicatorsByCompetency[$competency['id']]))
                                                 @foreach ($indicatorsByCompetency[$competency['id']] as $indicator)
@@ -75,15 +75,15 @@
                                                     id: {{ $indicator['id'] }},
                                                     competency_id: '{{ $competency['id'] }}',
                                                     code: '{{ $indicator['code'] }}',
-                                                    assessment: '{{ $indicator['assessment'] }}',
+                                                    assessment: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['assessment'])) }}',
                                                     entry: '{{ $indicator['entry'] }}',
+                                                    link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                                     rate_option: '{{ $indicator['rate_option'] }}',
-                                                    disable_text: '{{ $indicator['disable_text'] }}',
-                                                    info: '{{ $indicator['info'] }}',
+                                                    disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                                     isDisabled: false
                                                 }, @endforeach
                                             @else
-                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', rate_option: '', disable_text: '', info: '' }
+                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', link_info: '', rate_option: '', disable_text: '' }
                                             @endif
                                         ]
                                     },
@@ -228,9 +228,9 @@
                                                                                 <p class="md:hidden"
                                                                                     x-text="indicator.entry">
                                                                                 </p>
-                                                                                <p x-text="indicator.info">
+                                                                                <p x-text="indicator.link_info">
                                                                                 </p>
-                                                                                <p x-show="!indicator.info"
+                                                                                <p x-show="!indicator.link_info"
                                                                                     class="text-base">
                                                                                     No info
                                                                                     available
@@ -268,16 +268,16 @@
                                                                                 class="flex flex-col gap-2 px-4 py-3 text-sm text-gray-600 dark:text-neutral-400">
                                                                                 <p x-text="indicator.entry">
                                                                                 </p>
+                                                                                <p x-show="!indicator.link_info">
+                                                                                    No info
+                                                                                    verification
+                                                                                    link</p>
                                                                                 <p x-text="indicator.disable_text">
                                                                                 </p>
                                                                                 <p x-text="indicator.rate_option">
                                                                                 </p>
-                                                                                <p x-text="indicator.info">
+                                                                                <p x-text="indicator.link_info">
                                                                                 </p>
-                                                                                <p x-show="!indicator.info">
-                                                                                    No info
-                                                                                    verification
-                                                                                    link</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -314,7 +314,7 @@
             </div>
         </div>
 
-        <div class="space-x-10 text-right">
+        {{-- <div class="space-x-10 text-right">
             @if ($userRole == 'PJM')
                 <form action="{{ route('documents.destroy', $document) }}" method="POST">
                     @csrf
@@ -325,7 +325,7 @@
                     </button>
                 </form>
             @endif
-        </div>
+        </div> --}}
     </div>
 
 </x-app-layout>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>404 - SIM AMI ITK</title>
+    <title>403 - SIM AMI ITK</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="{{ asset('images/Logo ITK.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -20,10 +20,10 @@
             </path>
         </svg>
         <h1 class="text-6xl font-semibold text-gray-700 dark:text-gray-200">
-            404
+            403
         </h1>
         <p class="flex flex-col items-center gap-x-2 text-sm text-gray-700 dark:text-gray-300 md:text-lg md:flex-row">
-            Page will be available soon.
+            This Page is Restricted.
             <a href="/" class="font-semibold text-purple-600 hover:underline dark:text-purple-600">
                 Find your own way.
             </a>

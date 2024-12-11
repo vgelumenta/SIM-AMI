@@ -67,21 +67,21 @@
                             @foreach ($competenciesByStandard[$standard['id']] as $competency) {
                                 id: {{ $competency['id'] }},
                                 standard_id: '{{ $standard['id'] }}',
-                                statement: '{{ $competency['statement'] }}',
+                                statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
                                 indicators: [
                                     @if (isset($indicatorsByCompetency[$competency['id']]))
                                         @foreach ($indicatorsByCompetency[$competency['id']] as $indicator) {
                                             id: {{ $indicator['id'] }},
                                             competency_id: '{{ $competency['id'] }}',
                                             code: '{{ $indicator['code'] }}',
-                                            assessment: '{{ $indicator['assessment'] }}',
+                                            assessment: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['assessment'])) }}',
                                             entry: '{{ $indicator['entry'] }}',
+                                            link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                             rate_option: '{{ $indicator['rate_option'] }}',
-                                            disable_text: '{{ $indicator['disable_text'] }}',
-                                            info: '{{ $indicator['info'] }}',
+                                            disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                         }, @endforeach
                                     @else
-                                        { id: 1, competency_id: 1, code: '', assessment: '',  entry: '', rate_option: '', disable_text: '', info: '' }
+                                        { id: 1, competency_id: 1, code: '', assessment: '',  entry: '', link_info: '', rate_option: '', disable_text: '' }
                                     @endif
                                 ]
                             }, @endforeach
@@ -547,7 +547,7 @@
                                                                                         d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z">
                                                                                     </path>
                                                                                 </svg>
-                                                                                <textarea x-model="indicator.info"
+                                                                                <textarea x-model="indicator.link_info"
                                                                                     :name="'categories[' + index +
                                                                                         '][standards][' +
                                                                                         standardIndex +
@@ -555,7 +555,7 @@
                                                                                         competencyIndex +
                                                                                         '][indicators][' +
                                                                                         indicatorIndex +
-                                                                                        '][info]'"
+                                                                                        '][link_info]'"
                                                                                     class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-3 py-0 font-semibold text-indigo-800 focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0"
                                                                                     placeholder="Enter link verification info">
                                                                             </textarea>

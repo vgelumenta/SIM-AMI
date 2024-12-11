@@ -19,7 +19,7 @@ class AuthController extends Controller
 
     public function auth(Request $request)
     {
-        // Tentukan apakah login menggunakan email atau username
+        // Determine whether login uses email or username
         $userField = filter_var($request->input('user'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $credential = [
@@ -32,28 +32,25 @@ class AuthController extends Controller
             ->first();
 
         if ($user) {
-            // Cek apakah pengguna memiliki role
-            if ($user->roles->count() === 0) {
-                return redirect('/login')->withErrors(['Error' => 'Pengguna tidak memiliki akses']);
+
+            $response = Http::post('https://api-gerbang.itk.ac.id/api/siakad/login', $credential);
+
+            if ($response->successful()) {
+                // Login pengguna jika memiliki role
+                Auth::login($user);
+                $request->session()->regenerate();
+                return redirect()->intended('/');
+            } else if (Auth::attempt($credential)) {
+                $request->session()->regenerate();
+                return redirect()->intended('/');
+            } else {
+                return back()->withErrors(['Error' => 'Login gagal, coba lagi']);
             }
+
         } else {
+            
             return back()->withErrors(['Error' => 'Pengguna belum terdaftar.']);
-        }
 
-        // Kirim request ke API login eksternal
-        $response = Http::post('https://api-gerbang.itk.ac.id/api/siakad/login', $credential);
-
-        // Cek apakah request ke API berhasil
-        if ($response->successful()) {
-            // Login pengguna jika memiliki role
-            Auth::login($user);
-            $request->session()->regenerate();
-            return redirect()->intended('/');
-        } else if (!is_null($user->password) && Auth::attempt($credential)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/');
-        } else {
-            return back()->withErrors(['Error' => 'Email atau password salah']);
         }
     }
 

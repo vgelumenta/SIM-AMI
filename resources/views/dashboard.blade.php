@@ -220,7 +220,7 @@
 
     <div class="flex w-full max-w-2xl flex-col items-stretch p-2 sm:h-56 sm:flex-row sm:overflow-hidden">
         @php
-            $colors = ['red-500', 'yellow-400', 'green-500', 'blue-500', 'purple-500'];
+            $colors = ['red-500', 'yellow-300', 'green-400', 'blue-500', 'purple-400'];
         @endphp
         @foreach ($stages as $stage)
             <form action="{{ route('stages.update', $stage->id) }}" method="POST"
@@ -233,7 +233,7 @@
                     name="input_{{ $stage->id }}">{{ $stage->description }}</textarea>
 
                 <div id="stage"
-                    class="absolute bottom-0 z-30 mb-2 flex items-center gap-x-2 transition-all duration-700 ease-in-out">
+                    class="absolute bottom-0 z-20 m-2 flex items-center gap-x-2 transition-all duration-700 ease-in-out">
                     <div
                         class="text-{{ $colors[$loop->index % count($colors)] }} flex h-10 w-10 items-center justify-center rounded-full bg-gray-800">
                         <i class="fa-solid fa-{{ $stage->id }}"></i>

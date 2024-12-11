@@ -1,5 +1,5 @@
-import './bootstrap';
+import "./bootstrap";
 
-import 'flowbite';
+import "flowbite";
 
-import 'preline'
+import "preline";

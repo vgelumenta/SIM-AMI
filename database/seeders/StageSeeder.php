@@ -30,6 +30,10 @@ class StageSeeder extends Seeder
         ]);
 
         Stage::create([
+            'name' => 'Laporan',
+        ]);
+        
+        Stage::create([
             'name' => 'Selesai',
         ]);
     }

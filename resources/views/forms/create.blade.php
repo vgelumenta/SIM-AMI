@@ -313,7 +313,8 @@
                                                                     :name="'user_names[' + option + '][]'"
                                                                     class="w-full rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
                                                                     placeholder="Search User" />
-                                                                <input type="hidden" :id="option + '-auditeeUsername-0'"
+                                                                <input type="hidden"
+                                                                    :id="option + '-auditeeUsername-0'"
                                                                     :name="'user_usernames[' + option + '][]'" />
                                                                 <input type="hidden" :id="option + '-auditeeEmail-0'"
                                                                     :name="'user_emails[' + option + '][]'" />
@@ -340,7 +341,8 @@
                                                                     :name="'user_names[' + option + '][]'"
                                                                     class="w-full rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
                                                                     placeholder="Search User" />
-                                                                <input type="hidden" :id="option + '-auditeeUsername-1'"
+                                                                <input type="hidden"
+                                                                    :id="option + '-auditeeUsername-1'"
                                                                     :name="'user_usernames[' + option + '][]'" />
                                                                 <input type="hidden" :id="option + '-auditeeEmail-1'"
                                                                     :name="'user_emails[' + option + '][]'" />
@@ -458,7 +460,8 @@
                                                                     :name="'user_names[' + option + '][]'"
                                                                     class="w-full rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
                                                                     placeholder="Search User" />
-                                                                <input type="hidden" :id="option + '-auditorUsername-0'"
+                                                                <input type="hidden"
+                                                                    :id="option + '-auditorUsername-0'"
                                                                     :name="'user_usernames[' + option + '][]'" />
                                                                 <input type="hidden" :id="option + '-auditorEmail-0'"
                                                                     :name="'user_emails[' + option + '][]'" />
@@ -485,7 +488,8 @@
                                                                     :name="'user_names[' + option + '][]'"
                                                                     class="w-full rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
                                                                     placeholder="Search User" />
-                                                                <input type="hidden" :id="option + '-auditorUsername-1'"
+                                                                <input type="hidden"
+                                                                    :id="option + '-auditorUsername-1'"
                                                                     :name="'user_usernames[' + option + '][]'" />
                                                                 <input type="hidden" :id="option + '-auditorEmail-1'"
                                                                     :name="'user_emails[' + option + '][]'" />
@@ -603,7 +607,7 @@
                                                     {
                                                         id: {{ $competency['id'] }},
                                                         standard_id: '{{ $standard['id'] }}',
-                                                        statement: '{{ $competency['statement'] }}',
+                                                        statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
                                                         indicators: [
                                                             @if (isset($indicatorsByCompetency[$competency['id']]))
                                                                 @foreach ($indicatorsByCompetency[$competency['id']] as $indicator)
@@ -611,15 +615,15 @@
                                                                     id: {{ $indicator['id'] }},
                                                                     competency_id: '{{ $competency['id'] }}',
                                                                     code: '{{ $indicator['code'] }}',
-                                                                    assessment: '{{ $indicator['assessment'] }}',
+                                                                    assessment: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['assessment'])) }}',
                                                                     entry: '{{ $indicator['entry'] }}',
+                                                                    link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                                                     rate_option: '{{ $indicator['rate_option'] }}',
-                                                                    disable_text: '{{ $indicator['disable_text'] }}',
-                                                                    info: '{{ $indicator['info'] }}',
+                                                                    disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                                                     isDisabled: false
                                                                 }, @endforeach
                                                             @else
-                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', rate_option: '', disable_text: '', info: '' }
+                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', info: '', rate_option: '', disable_text: '' }
                                                             @endif
                                                         ]
                                                     },
@@ -636,12 +640,26 @@
                                 },
                                 @empty { id: 1, name: '', standards: [] } @endforelse
                             ],
+                            initTextareas() {
+                                function textareaAutoHeight(el, offsetTop = 0) {
+                                    el.style.height = 'auto';
+                                    el.style.height = `${el.scrollHeight + offsetTop}px`;
+                                }
+            
+                                this.$nextTick(() => {
+                                    document.querySelectorAll('textarea').forEach(textarea => {
+                                        textarea.addEventListener('focus', () => textareaAutoHeight(textarea, 30));
+                                        textareaAutoHeight(textarea, 30); // Initial call
+                                    });
+                                });
+            
+                            },
                             toggleDisableIndicator(standardId, competencyId, indicatorId) {
                                 let category = this.categories.find(cat => cat.id === this.openTab);
                                 let indicator = category.standards[standardId].competencies[competencyId].indicators[indicatorId];
                         
                                 indicator.isDisabled = !indicator.isDisabled;
-                            }
+                            },
                         }">
 
                             <div class="mb-2 flex justify-between gap-x-2">
@@ -706,7 +724,7 @@
                             <div
                                 class="shadow-xs h-[90%] w-full overflow-y-auto rounded-b rounded-r border-2 border-gray-200 bg-white px-3 py-1 text-center scrollbar-thin dark:border-gray-500 dark:bg-gray-700 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800">
                                 <template x-for="(category, index) in categories" :key="category.id">
-                                    <div x-show="openTab === category.id">
+                                    <div x-show="openTab === category.id, initTextareas()">
                                         <template x-for="(standard, standardIndex) in category.standards"
                                             :key="standard.id">
                                             <div class="mb-5">
@@ -737,10 +755,10 @@
                                                             <tr>
                                                                 <td
                                                                     class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                                    <div x-text="competency.statement"
-                                                                        style="text-align: justify;"
-                                                                        class="w-full text-indigo-800">
-                                                                    </div>
+                                                                    <textarea x-model="competency.statement" disabled
+                                                                        class="w-full resize-none overflow-hidden border-0 bg-transparent font-semibold text-indigo-800 focus:ring-0"
+                                                                        style="text-align: justify;" placeholder="Competency Statement">
+                                                            </textarea>
                                                                 </td>
                                                                 <td colspan="2"
                                                                     class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
@@ -872,9 +890,9 @@
                                                                                                         x-text="indicator.entry">
                                                                                                     </p>
                                                                                                     <p
-                                                                                                        x-text="indicator.info">
+                                                                                                        x-text="indicator.link_info">
                                                                                                     </p>
-                                                                                                    <p x-show="!indicator.info"
+                                                                                                    <p x-show="!indicator.link_info"
                                                                                                         class="text-base">
                                                                                                         No info
                                                                                                         available
@@ -924,10 +942,10 @@
                                                                                                         x-text="indicator.rate_option">
                                                                                                     </p>
                                                                                                     <p
-                                                                                                        x-text="indicator.info">
+                                                                                                        x-text="indicator.link_info">
                                                                                                     </p>
                                                                                                     <p
-                                                                                                        x-show="!indicator.info">
+                                                                                                        x-show="!indicator.link_info">
                                                                                                         No info
                                                                                                         verification
                                                                                                         link</p>

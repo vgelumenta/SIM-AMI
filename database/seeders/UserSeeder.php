@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Penjaminan Mutu',
             'username' => '11201091',
-            'email' => 'pjm@itk.ac.id',
+            'email' => '11201091@student.itk.ac.id',
             'password' => Hash::make('11111111'),
         ])->assignRole('PJM', 'Auditor', 'Auditee');
 

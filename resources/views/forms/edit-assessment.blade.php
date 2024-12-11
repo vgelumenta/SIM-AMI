@@ -1,5 +1,5 @@
 <x-app-layout>
-    <form id="form" action="{{ route('forms.updateVerification', $form) }}" method="POST"
+    <form id="form" action="{{ route('forms.updateAssessment', $form) }}" method="POST"
         class="flex h-full w-full flex-col gap-y-1 font-semibold" x-data="form()" x-init="init()">
         @csrf
         @method('PUT')
@@ -32,7 +32,7 @@
                         <path d="m1 9 4-4-4-4" />
                     </svg>
                 </li>
-                <li class="hidden xl:block">Verification</li>
+                <li class="hidden xl:block">Assessment</li>
             </ol>
 
             <div class="flex items-center gap-x-2">
@@ -282,12 +282,9 @@
                                                                                     class="text-yellow-300 dark:text-neutral-500 dark:focus:text-blue-500">
                                                                                     <svg class="size-6"
                                                                                         xmlns="http://www.w3.org/2000/svg"
-                                                                                        viewBox="0 0 24 24"
                                                                                         fill="none"
                                                                                         stroke="currentColor"
-                                                                                        stroke-width="2"
-                                                                                        stroke-linecap="round"
-                                                                                        stroke-linejoin="round">
+                                                                                        stroke-width="2">
                                                                                         <path
                                                                                             d="M3.75 9h16.5m-16.5 6.75h16.5">
                                                                                         </path>
@@ -310,46 +307,6 @@
                                                                                             d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3">
                                                                                         </path>
                                                                                     </svg>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template x-if="indicator.feedback == '0'">
-                                                                                <div
-                                                                                    class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fas fa-user-times"></i>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template x-if="indicator.feedback == '1'">
-                                                                                <div
-                                                                                    class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fas fa-user-check"></i>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="indicator.verification_status == 1">
-                                                                                <div
-                                                                                    class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fa-solid fa-d"></i>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="indicator.verification_status == 2">
-                                                                                <div
-                                                                                    class="text-yellow-300 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fa-solid fa-c"></i>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="indicator.verification_status == 3">
-                                                                                <div
-                                                                                    class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fa-solid fa-b"></i>
-                                                                                </div>
-                                                                            </template>
-                                                                            <template
-                                                                                x-if="indicator.verification_status == 4">
-                                                                                <div
-                                                                                    class="text-blue-500 dark:text-neutral-500 dark:focus:text-blue-500">
-                                                                                    <i class="fa-solid fa-a"></i>
                                                                                 </div>
                                                                             </template>
                                                                         </div>
@@ -379,31 +336,33 @@
                                                                     </template>
                                                                     <!-- Modal Content -->
                                                                     <template
-                                                                        x-if="!indicator.verification_status | !indicator.conclusion">
+                                                                        x-if="!indicator.assessment_status | !indicator.description">
                                                                         <button
                                                                             x-show="
                                                                             ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
                                                                             type="button"
                                                                             @click="openIndicator(indicator)"
                                                                             class="text-gray-500 hover:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
-                                                                            <i
-                                                                                class="fa-solid fa-file-signature fa-lg"></i>
+                                                                            <svg class="size-6"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="2"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round">
+                                                                                <path
+                                                                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z">
+                                                                                </path>
+                                                                            </svg>
+                                                                        </button>
                                                                     </template>
                                                                     <template
-                                                                        x-if="indicator.verification_status && indicator.conclusion">
+                                                                        x-if="indicator.assessment_status && indicator.description">
                                                                         <button @click="openIndicator(indicator)"
                                                                             x-show="
                                                                             ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
                                                                             type="button"
                                                                             class="text-blue-600 hover:text-blue-700 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
-                                                                            <svg class="size-6"
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                fill="none" stroke="currentColor"
-                                                                                stroke-width="2">
-                                                                                <path
-                                                                                    d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12">
-                                                                                </path>
-                                                                            </svg>
+                                                                            <i class="fa-solid fa-check fa-lg"></i>
                                                                         </button>
                                                                     </template>
                                                                     <div x-show="focusIndicator.id === indicator.id"
@@ -416,12 +375,12 @@
                                                                             x-transition:leave="transition ease-in duration-150"
                                                                             x-transition:leave-start="opacity-100"
                                                                             x-transition:leave-end="opacity-0 transform translate-y-1/2"
-                                                                            class="flex w-full max-w-7xl flex-col gap-2 overflow-hidden rounded-t-lg bg-white p-4 dark:bg-gray-800 sm:rounded-lg"
+                                                                            class="flex w-full max-w-2xl flex-col gap-2 overflow-hidden rounded-t-lg bg-white p-4 dark:bg-gray-800 sm:rounded-lg"
                                                                             :id="'modal-' + indicator.id">
                                                                             <header class="flex justify-between">
                                                                                 <h3
                                                                                     class="space-y-2 px-4 text-indigo-600 dark:text-gray-300">
-                                                                                    Set Final Decision for
+                                                                                    Set Assessment for
                                                                                     <span
                                                                                         x-text="indicator.code"></span>
                                                                                 </h3>
@@ -635,7 +594,7 @@
 
                                                                                 <!-- Assessment Form -->
                                                                                 <div
-                                                                                    class="flex w-full flex-col gap-y-2 text-left text-gray-500">
+                                                                                    class="flex w-full flex-col gap-y-2 text-left text-indigo-600">
                                                                                     Assessment Form
                                                                                     <!-- Modal form -->
                                                                                     <div class="space-y-6">
@@ -643,88 +602,7 @@
                                                                                             class="flex items-center justify-between gap-x-3">
                                                                                             <svg class="size-6 w-6"
                                                                                                 xmlns="http://www.w3.org/2000/svg"
-                                                                                                fill="none"
-                                                                                                stroke="currentColor"
-                                                                                                stroke-width="2">
-                                                                                                <path
-                                                                                                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z">
-                                                                                                </path>
-                                                                                            </svg>
-                                                                                            <select disabled
-                                                                                                x-model="indicator.assessment_status"
-                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
-                                                                                                <option hidden
-                                                                                                    value="">
-                                                                                                    Indicator Grade
-                                                                                                </option>
-                                                                                                @foreach ($statuses as $status)
-                                                                                                    <option
-                                                                                                        value="{{ $status->id }}">
-                                                                                                        {{ $status->name }}
-                                                                                                    </option>
-                                                                                                @endforeach
-                                                                                            </select>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="flex items-center justify-between gap-x-3">
-                                                                                            <i
-                                                                                                class="fa-regular fa-comment-dots fa-lg w-6"></i>
-                                                                                            <textarea disabled x-model="indicator.description"
-                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Auditor comments">
-                                                                                            </textarea>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <!-- End Assessment Form -->
-
-                                                                                <!-- Feedback Form -->
-                                                                                <div
-                                                                                    class="flex w-full flex-col gap-y-2 text-left text-gray-500">
-                                                                                    Feedback Form
-                                                                                    <!-- Modal form -->
-                                                                                    <div class="space-y-6">
-                                                                                        <div
-                                                                                            class="flex items-center justify-between gap-x-3">
-                                                                                            <i
-                                                                                                class="far fa-handshake fa-lg w-6"></i>
-                                                                                            <select disabled
-                                                                                                x-model="indicator.feedback"
-                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
-                                                                                                <option hidden
-                                                                                                    value="">
-                                                                                                    Feedback Auditee
-                                                                                                </option>
-                                                                                                <option value="1">
-                                                                                                    Agree</option>
-                                                                                                <option value="0">
-                                                                                                    Disagree
-                                                                                                </option>
-                                                                                            </select>
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="flex items-center justify-between gap-x-3">
-                                                                                            <i
-                                                                                                class="fa-regular fa-comment-dots fa-lg w-6"></i>
-                                                                                            <textarea disabled x-model="indicator.comment"
-                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Auditee comments">
-                                                                                            </textarea>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <!-- End Feedback Form -->
-
-                                                                                <!-- Verification Form -->
-                                                                                <div
-                                                                                    class="flex w-full flex-col gap-y-2 text-left text-indigo-600">
-                                                                                    Verification Form
-                                                                                    <!-- Modal form -->
-                                                                                    <div class="space-y-6">
-                                                                                        <div
-                                                                                            class="flex items-center justify-between gap-x-3">
-                                                                                            <svg class="size-6 w-6"
-                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                viewBox="0 0 24 24"
                                                                                                 fill="none"
                                                                                                 stroke="currentColor"
                                                                                                 stroke-width="2">
@@ -739,7 +617,7 @@
                                                                                                 x-model="JSON.stringify(indicator)">
                                                                                             <select
                                                                                                 @input="isEditing = true"
-                                                                                                x-model="focusIndicator.verification_status"
+                                                                                                x-model="focusIndicator.assessment_status"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
                                                                                                 <option hidden
                                                                                                     value="">
@@ -756,23 +634,16 @@
                                                                                         </div>
                                                                                         <div
                                                                                             class="flex items-center justify-between gap-x-3">
-                                                                                            <svg class="size-6 w-6"
-                                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                                fill="none"
-                                                                                                stroke="currentColor"
-                                                                                                stroke-width="2">
-                                                                                                <path
-                                                                                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
-                                                                                                </path>
-                                                                                            </svg>
-                                                                                            <textarea @input="isEditing = true" x-model="focusIndicator.conclusion"
+                                                                                            <i
+                                                                                                class="fa-regular fa-comment-dots fa-lg w-6"></i>
+                                                                                            <textarea @input="isEditing = true" x-model="focusIndicator.description"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Enter final conclusion">
-                                                                                        </textarea>
+                                                                                                style="text-align: justify" placeholder="Enter audit comments">
+                                                                                            </textarea>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <!-- End Verification Form -->
+                                                                                <!-- End Assessment Form -->
                                                                             </div>
                                                                             <!-- End Modal body -->
                                                                             <footer
@@ -891,10 +762,6 @@
                                                                 link: '{{ $indicator->link }}',
                                                                 assessment_status: '{{ $indicator->assessment_status }}',
                                                                 description: @json($indicator->description),
-                                                                feedback: '{{ $indicator->feedback }}',
-                                                                comment: @json($indicator->comment),
-                                                                verification_status: '{{ $indicator->verification_status }}',
-                                                                conclusion: @json($indicator->conclusion),
                                                                 code: '{{ $indicator->indicator->code }}',
                                                                 assessment: @json($indicator->indicator->assessment),
                                                                 entry: '{{ $indicator->indicator->entry }}',
@@ -980,7 +847,7 @@
                         const toastContainer = document.getElementById('loading');
                         toastContainer.classList.remove('hidden');
                         toastContainer.classList.add('flex');
-                        fetch(`/forms/{{ $form->id }}/verification`, {
+                        fetch(`/forms/{{ $form->id }}/assessment`, {
                                 method: 'PUT',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

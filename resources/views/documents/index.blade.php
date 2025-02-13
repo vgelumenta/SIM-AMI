@@ -12,7 +12,7 @@
                 </li>
             </ol>
             <div class="flex items-center gap-x-2">
-                @if (session('status'))
+                {{-- @if (session('status'))
                     <div id="toast-success"
                         class="hidden w-full max-w-xs items-center rounded-sm border-green-400 bg-white px-3 py-1.5 text-gray-500 shadow dark:bg-gray-800 dark:text-gray-400 md:flex"
                         role="alert">
@@ -36,7 +36,7 @@
                             </svg>
                         </button>
                     </div>
-                @endif
+                @endif --}}
                 <a href="/documents/create"
                     class="inline-block whitespace-nowrap rounded-sm border-2 border-green-400 bg-green-400 px-3 py-1 text-sm font-medium text-white transition hover:shadow-outline-green">
                     <i class="far fa-plus-square mr-2"></i>Add Document
@@ -92,11 +92,11 @@
                                                 <i class="fa-solid fa-eye"></i>
                                                 Buka
                                             </a>
-                                            <a href="{{ route('documents.edit', $document) }}"
+                                            {{-- <a href="{{ route('documents.edit', $document) }}"
                                                 class="inline-block rounded border border-yellow-300 px-3 py-1 text-sm font-medium text-yellow-300 transition hover:bg-yellow-300 hover:text-white">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                                 Ubah
-                                            </a>
+                                            </a> --}}
                                             @if ($document->can_be_deleted)
                                                 <form action="{{ route('documents.destroy', $document) }}"
                                                     method="POST"

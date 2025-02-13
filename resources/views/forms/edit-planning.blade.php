@@ -1,5 +1,5 @@
 <x-app-layout>
-    <form method="POST" action="{{ route('forms.updateSubmission', $form) }}" id="form"
+    <form id="form" action="{{ route('forms.updatePlanning', $form) }}" method="POST"
         class="flex h-full w-full flex-col gap-y-1 font-semibold" x-data="form()" x-init="init()">
         @csrf
         @method('PUT')
@@ -32,7 +32,7 @@
                         <path d="m1 9 4-4-4-4" />
                     </svg>
                 </li>
-                <li class="hidden xl:block">Submission</li>
+                <li class="hidden xl:block">Planning</li>
             </ol>
 
             <div class="flex items-center gap-x-2">
@@ -252,26 +252,130 @@
                                                                     <div x-text="indicator.code"
                                                                         class="text-sm text-indigo-700 dark:border-gray-500 dark:bg-gray-700 dark:text-purple-400">
                                                                     </div>
-                                                                    <div x-text="indicator.assessment"
-                                                                        class="line-clamp-3 w-full border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent text-sm text-indigo-700"
-                                                                        style="text-align: justify;">
+                                                                    <div class="flex w-full flex-col gap-y-1">
+                                                                        <div x-text="indicator.assessment"
+                                                                            class="line-clamp-3 w-full border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent text-sm text-indigo-700"
+                                                                            style="text-align: justify;">
+                                                                        </div>
+                                                                        <div class="flex items-center gap-x-3">
+                                                                            <template
+                                                                                x-if="parseInt(indicator.submission_status) < parseInt(indicator.assessment_status)">
+                                                                                <div
+                                                                                    class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <svg class="size-5"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        stroke-width="2"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round">
+                                                                                        <path
+                                                                                            d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18">
+                                                                                        </path>
+                                                                                    </svg>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="parseInt(indicator.submission_status) === parseInt(indicator.assessment_status)">
+                                                                                <div
+                                                                                    class="text-yellow-300 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <svg class="size-6"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        stroke-width="2"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round">
+                                                                                        <path
+                                                                                            d="M3.75 9h16.5m-16.5 6.75h16.5">
+                                                                                        </path>
+                                                                                    </svg>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="parseInt(indicator.submission_status) > parseInt(indicator.assessment_status)">
+                                                                                <div
+                                                                                    class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <svg class="size-5"
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        stroke-width="2"
+                                                                                        stroke-linecap="round"
+                                                                                        stroke-linejoin="round">
+                                                                                        <path
+                                                                                            d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3">
+                                                                                        </path>
+                                                                                    </svg>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template x-if="indicator.feedback == '0'">
+                                                                                <div
+                                                                                    class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fas fa-user-times"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template x-if="indicator.feedback == '1'">
+                                                                                <div
+                                                                                    class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fas fa-user-check"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="indicator.validation_status == 1">
+                                                                                <div
+                                                                                    class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fa-solid fa-d"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="indicator.validation_status == 2">
+                                                                                <div
+                                                                                    class="text-yellow-300 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fa-solid fa-c"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="indicator.validation_status == 3">
+                                                                                <div
+                                                                                    class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fa-solid fa-b"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                            <template
+                                                                                x-if="indicator.validation_status == 4">
+                                                                                <div
+                                                                                    class="text-blue-500 dark:text-neutral-500 dark:focus:text-blue-500">
+                                                                                    <i class="fa-solid fa-a"></i>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
                                                                     </div>
                                                                     <!-- Modal Content -->
                                                                     <template
-                                                                        x-if="!indicator.submission_status | !indicator.validation | !indicator.link">
+                                                                        x-if="!indicator.planning">
                                                                         <button
                                                                             type="button"
                                                                             @click="openIndicator(indicator)"
                                                                             class="text-gray-500 hover:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
                                                                             <i class="fas fa-marker"></i>
-                                                                        </button>
                                                                     </template>
                                                                     <template
-                                                                        x-if="indicator.submission_status && indicator.validation && indicator.link">
+                                                                        x-if="indicator.planning">
                                                                         <button @click="openIndicator(indicator)"
                                                                             type="button"
                                                                             class="text-blue-600 hover:text-blue-700 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
-                                                                            <i class="fa-solid fa-check fa-lg"></i>
+                                                                            <svg class="size-6"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none" stroke="currentColor"
+                                                                                stroke-width="2">
+                                                                                <path
+                                                                                    d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12">
+                                                                                </path>
+                                                                            </svg>
                                                                         </button>
                                                                     </template>
                                                                     <div x-show="focusIndicator.id === indicator.id"
@@ -284,12 +388,12 @@
                                                                             x-transition:leave="transition ease-in duration-150"
                                                                             x-transition:leave-start="opacity-100"
                                                                             x-transition:leave-end="opacity-0 transform translate-y-1/2"
-                                                                            class="flex w-full max-w-xl flex-col gap-2 overflow-hidden rounded-t-lg bg-white p-4 dark:bg-gray-800 sm:rounded-lg"
+                                                                            class="flex w-full max-w-2xl flex-col gap-2 overflow-hidden rounded-t-lg bg-white p-4 dark:bg-gray-800 sm:rounded-lg"
                                                                             :id="'modal-' + indicator.id">
                                                                             <header class="flex justify-between">
                                                                                 <h3
                                                                                     class="space-y-2 px-4 text-indigo-600 dark:text-gray-300">
-                                                                                    Set Report for
+                                                                                    Set Final Decision for
                                                                                     <span
                                                                                         x-text="indicator.code"></span>
                                                                                 </h3>
@@ -313,11 +417,11 @@
                                                                             </div>
                                                                             <!-- Modal body -->
                                                                             <div
-                                                                                class="flex w-full flex-col gap-8 overflow-y-auto px-4 scrollbar-thin dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800 md:flex-row">
-                                                                                <!-- Submission Form -->
+                                                                                class="flex max-h-[55vh] w-full flex-col gap-8 overflow-y-auto px-4 scrollbar-thin dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800 md:flex-row">
+                                                                                <!-- Validation Form -->
                                                                                 <div
-                                                                                    class="flex w-full flex-col gap-y-2 text-left text-indigo-600">
-                                                                                    Submission Form
+                                                                                    class="{{ $form->stage_id == 4 ? 'text-indigo-600' : 'text-gray-500' }} flex w-full flex-col gap-y-2 text-left">
+                                                                                    Validation Form
                                                                                     <!-- Modal form -->
                                                                                     <div class="space-y-6">
                                                                                         <div
@@ -336,13 +440,11 @@
                                                                                                 indicator.id +
                                                                                                     ']'"
                                                                                                 x-model="JSON.stringify(indicator)">
-                                                                                            <select
-                                                                                                @input="isEditing = true"
-                                                                                                x-model="focusIndicator.submission_status"
+                                                                                            <select disabled
+                                                                                                x-model="indicator.validation_status"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
                                                                                                 <option hidden
                                                                                                     value="">
-                                                                                                    Choose
                                                                                                     Indicator Grade
                                                                                                 </option>
                                                                                                 @foreach ($statuses as $status)
@@ -355,143 +457,30 @@
                                                                                         </div>
                                                                                         <div
                                                                                             class="flex items-center justify-between gap-x-3">
-                                                                                            <i
-                                                                                                class="fa-solid fa-chart-column fa-lg w-6"></i>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Option'">
-                                                                                                <select
-                                                                                                    @input="isEditing = true"
-                                                                                                    x-model="focusIndicator.validation"
-                                                                                                    class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
-                                                                                                    <option hidden
-                                                                                                        value="">
-                                                                                                        Choose
-                                                                                                        Validation
-                                                                                                    </option>
-                                                                                                    <option
-                                                                                                        value="Yes">
-                                                                                                        Yes
-                                                                                                    </option>
-                                                                                                    <option
-                                                                                                        value="No">
-                                                                                                        No
-                                                                                                    </option>
-                                                                                                </select>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Digit'">
-                                                                                                <div
-                                                                                                    class="group relative z-0 w-[90%]">
-                                                                                                    <input
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        type="number"
-                                                                                                        placeholder="Enter some digit"
-                                                                                                        class="peer w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                                                                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-                                                                                                    <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
-                                                                                                        Digit
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Decimal'">
-                                                                                                <div
-                                                                                                    class="group relative z-0 w-[90%]">
-                                                                                                    <input
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        type="number"
-                                                                                                        placeholder="Enter some decimal"
-                                                                                                        class="peer w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                                                                                                    <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
-                                                                                                        Decimal
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Cost'">
-                                                                                                <div
-                                                                                                    class="group relative z-0 w-[90%]">
-                                                                                                    <input
-                                                                                                        @input="isEditing = true; formatCurrency($event.target.value);"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        placeholder="Enter some Rupiah"
-                                                                                                        class="peer w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" />
-                                                                                                    <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
-                                                                                                        Rupiah
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Percentage'">
-                                                                                                <div
-                                                                                                    class="group relative z-0 flex w-[90%] items-center gap-x-1">
-                                                                                                    <input
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        type="number"
-                                                                                                        placeholder="Enter some percentage"
-                                                                                                        class="peer w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                                                                        oninput="if (this.value < 0) this.value = 0; else if (this.value > 100) this.value = 100;" />
-                                                                                                    <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
-                                                                                                        Percentage
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        class="px-3 text-lg font-bold text-gray-500">
-                                                                                                        %</div>
-                                                                                                </div>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Rate' && (indicator.rate_option === null || indicator.rate_option === '' || indicator.rate_option === '1-10')">
-                                                                                                <div
-                                                                                                    class="group relative z-0 w-[90%]">
-                                                                                                    <div
-                                                                                                        class="px-4">
-                                                                                                        Rate 1 - 10
-                                                                                                        <span
-                                                                                                            class="text-xs">(Replace
-                                                                                                            5)</span>
-                                                                                                    </div>
-                                                                                                    <input
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        type="range"
-                                                                                                        max="10"
-                                                                                                        class="w-full" />
-                                                                                                    <div
-                                                                                                        class="flex w-full justify-between px-1.5 text-xs">
-                                                                                                        @for ($i = 0; $i <= 10; $i++)
-                                                                                                            <span>{{ $i }}</span>
-                                                                                                        @endfor
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </template>
-                                                                                            <template
-                                                                                                x-if="indicator.entry === 'Rate' && indicator.rate_option === '1-100'">
-                                                                                                <div
-                                                                                                    class="group relative z-0 flex w-[90%] items-center gap-x-1">
-                                                                                                    <input
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.validation"
-                                                                                                        type="number"
-                                                                                                        placeholder="Range 1 - 100"
-                                                                                                        class="peer w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                                                                                        oninput="if (this.value > 100) this.value = 100; else if (this.value < 0) this.value = 0; this.value = this.value.replace(/[^0-9]/g, '');" />
-                                                                                                    <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
-                                                                                                        Rate
-                                                                                                    </div>
-                                                                                                    <div
-                                                                                                        class="text-gray-500">
-                                                                                                        /100</div>
-                                                                                                </div>
-                                                                                            </template>
+                                                                                            <svg class="size-6 w-6"
+                                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                                fill="none"
+                                                                                                stroke="currentColor"
+                                                                                                stroke-width="2">
+                                                                                                <path
+                                                                                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
+                                                                                                </path>
+                                                                                            </svg>
+                                                                                            <textarea disabled x-model="indicator.conclusion"
+                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
+                                                                                                style="text-align: justify" placeholder="Final conclusion">
+                                                                                        </textarea>
                                                                                         </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <!-- End Validation Form -->
+                                                                                
+                                                                                <!-- Planning Form -->
+                                                                                <div
+                                                                                    class="flex w-full flex-col gap-y-2 text-left text-indigo-600">
+                                                                                    Planning Form
+                                                                                    <!-- Modal form -->
+                                                                                    <div class="space-y-6">
                                                                                         <div
                                                                                             class="flex items-center justify-between gap-x-3">
                                                                                             <svg class="size-6 w-6"
@@ -500,59 +489,17 @@
                                                                                                 stroke="currentColor"
                                                                                                 stroke-width="2">
                                                                                                 <path
-                                                                                                    d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244">
+                                                                                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
                                                                                                 </path>
                                                                                             </svg>
-                                                                                            <div
-                                                                                                class="flex w-[90%] items-center">
-                                                                                                <div
-                                                                                                    class="flex w-full py-0.5 text-sm text-gray-500">
-                                                                                                    <div
-                                                                                                        class="inline-flex min-w-fit rounded-s-lg border border-e-0 border-gray-200 bg-gray-50 px-4 py-3 text-gray-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
-                                                                                                        Link
-                                                                                                    </div>
-                                                                                                    <input
-                                                                                                        type="text"
-                                                                                                        @input="isEditing = true"
-                                                                                                        x-model="focusIndicator.link"
-                                                                                                        class="w-full rounded-e-lg border-gray-200 bg-gray-50 px-4 text-sm text-indigo-600 shadow-sm focus:ring-indigo-600 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-                                                                                                        placeholder="https://www.example.com">
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    class="hs-tooltip px-2">
-                                                                                                    <svg class="size-6 hs-tooltip-toggle cursor-pointer text-gray-500 hover:text-indigo-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500"
-                                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                                        fill="none"
-                                                                                                        stroke="currentColor"
-                                                                                                        stroke-width="2"
-                                                                                                        stroke-linecap="round"
-                                                                                                        stroke-linejoin="round">
-                                                                                                        <path
-                                                                                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z">
-                                                                                                        </path>
-                                                                                                    </svg>
-                                                                                                    <div style="text-align: justify;"
-                                                                                                        class="hs-tooltip-content invisible absolute z-10 hidden max-w-xs rounded-lg border border-gray-100 bg-white p-3 text-gray-600 opacity-0 shadow-md transition-opacity hs-tooltip-shown:visible hs-tooltip-shown:opacity-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
-                                                                                                        <h3
-                                                                                                            class="font-bold text-indigo-600">
-                                                                                                            Link
-                                                                                                            Verification
-                                                                                                            Info</h3>
-                                                                                                        <p class="text-sm"
-                                                                                                            x-text="indicator.link_info">
-                                                                                                        </p>
-                                                                                                        <p class="text-sm text-gray-500"
-                                                                                                            x-show="!indicator.link_info">
-                                                                                                            No info
-                                                                                                            available
-                                                                                                        </p>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
+                                                                                            <textarea @input="isEditing = true" x-model="focusIndicator.planning"
+                                                                                                class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
+                                                                                                style="text-align: justify" placeholder="Enter follow up plan">
+                                                                                        </textarea>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <!-- End Submission Form -->
+                                                                                <!-- End Planning Form -->
                                                                             </div>
                                                                             <!-- End Modal body -->
                                                                             <footer
@@ -666,13 +613,19 @@
                                                         @foreach ($indicators as $indicator)
                                                             {
                                                                 id: '{{ $indicator->id }}',
-                                                                submission_status: '{{ $indicator->submission_status }}',
+                                                                submission_status: '{{ $indicator->submission_status ?? '0' }}',
                                                                 validation: '{{ $indicator->validation }}',
                                                                 link: '{{ $indicator->link }}',
+                                                                assessment_status: '{{ $indicator->assessment_status }}',
+                                                                description: @json($indicator->description),
+                                                                feedback: '{{ $indicator->feedback }}',
+                                                                comment: @json($indicator->comment),
+                                                                validation_status: '{{ $indicator->validation_status }}',
+                                                                conclusion: @json($indicator->conclusion),
+                                                                planning: @json($indicator->planning),
                                                                 code: '{{ $indicator->indicator->code }}',
                                                                 assessment: @json($indicator->indicator->assessment),
                                                                 entry: '{{ $indicator->indicator->entry }}',
-                                                                link_info: @json($indicator->indicator->link_info),
                                                                 rate_option: '{{ $indicator->indicator->rate_option }}',
                                                             },
                                                         @endforeach
@@ -749,16 +702,12 @@
                     this.confirmAction()
                     this.closeConfirm()
                 },
-                formatCurrency(value) {
-                    const numericValue = parseInt(value.replace(/[^,\d]/g, '')) || 0;
-                    this.focusIndicator.validation = `Rp. ${numericValue.toLocaleString('id-ID')}`;
-                },
                 submitForm() {
                     if (this.isEditing) {
                         const toastContainer = document.getElementById('loading');
                         toastContainer.classList.remove('hidden');
                         toastContainer.classList.add('flex');
-                        fetch(`/forms/{{ $form->id }}/submission`, {
+                        fetch(`/forms/{{ $form->id }}/planning`, {
                                 method: 'PUT',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -869,4 +818,5 @@
             }
         }
     </script>
+
 </x-app-layout>

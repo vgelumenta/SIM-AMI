@@ -10,9 +10,9 @@ class Unit extends Model
     use HasFactory;
 
     protected $fillable = [
+        'department_id',
         'name',
         'code',
-        'department_id',
     ];
 
     public function department()

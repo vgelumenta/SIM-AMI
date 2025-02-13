@@ -14,27 +14,43 @@ class StageSeeder extends Seeder
     public function run(): void
     {
         Stage::create([
-            'name' => 'Pengisian',
+            'name' => 'Submission',
+            'description' => 'Tahap pengumpulan bukti ketercapaian indikator oleh Audite.'
         ]);
 
         Stage::create([
-            'name' => 'Penilaian',
+            'name' => 'Assessment',
+            'description' => 'Tahap penilaian ketercapaian indikator oleh Auditor.'
         ]);
 
         Stage::create([
             'name' => 'Feedback',
+            'description' => 'Tahap umpan balik Audite terhadap penilaian Auditor.'
         ]);
 
         Stage::create([
-            'name' => 'Verifikasi',
+            'name' => 'Validation',
+            'description' => 'Tahap validasi ketercapaian indikator berdasarkan kesepakatan bersama saat verifikasi lapangan.'
         ]);
 
         Stage::create([
-            'name' => 'Laporan',
+            'name' => 'Meeting',
+            'description' => 'Tahap pengumpulan Berita Acara RTM dengan verifikasi PJM.'
         ]);
-        
+
         Stage::create([
-            'name' => 'Selesai',
+            'name' => 'Planning',
+            'description' => 'Tahap perencanaan tindak lanjut indikator yang belum memenuhi oleh Audite.'
+        ]);
+
+        Stage::create([
+            'name' => 'Signing',
+            'description' => 'Tahap pengumpulan Laporan Audit yang telah ditandatangani.'
+        ]);
+
+        Stage::create([
+            'name' => 'Outcome',
+            'description' => 'Kegiatan Audit Mutu Internal berhasil dilaksanakan.'
         ]);
     }
 }

@@ -14,19 +14,19 @@ class StatusSeeder extends Seeder
     public function run(): void
     {
         Status::create([
-            'name' => 'Menyimpang',
+            'name' => 'Nonconformity',
         ]);
 
         Status::create([
-            'name' => 'Belum mencapai',
+            'name' => 'Not Fulfilled',
         ]);
 
         Status::create([
-            'name' => 'Telah mencapai',
+            'name' => 'Fulfilled',
         ]);
         
         Status::create([
-            'name' => 'Telah melampaui',
+            'name' => 'Exceeded',
         ]);
     }
 }

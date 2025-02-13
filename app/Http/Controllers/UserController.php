@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -40,7 +41,6 @@ class UserController extends Controller
             'name' => 'required',
             'username' => 'required|unique:users',
             'email' => 'required|email:dns|unique:users',
-            'password' => 'nullable|min:8',
             'contact' => 'nullable|string|regex:/^[\d\s()+]+$/', // Memperbolehkan hanya angka, +, (, ), dan spasi
             'roles' => 'required',
         ]);
@@ -49,7 +49,7 @@ class UserController extends Controller
 
         $user->assignRole($request->roles);
 
-        return redirect('/users')->with('status', 'Added user successfully');
+        return redirect('/users')->with('success', 'Added user successfully.');
     }
 
     /**
@@ -113,6 +113,29 @@ class UserController extends Controller
     {
         User::destroy($user->id);
 
-        return redirect('/users')->with('success', "Delete {$user->name} successfully");
+        return redirect('/users')->with('success', "Delete {$user->name} successfully.");
+    }
+
+    public function getUser(Request $request)
+    {
+        // Token dan URL API eksternal
+        $apiUrl = env('API_SEARCH_USER_URL');
+        $apiToken = env('API_USER_TOKEN');
+
+        // Ambil keyword dari request frontend
+        $keyword = $request->input('keyword', '');
+
+        // Fetch data dari API eksternal
+        $response = Http::withToken($apiToken)
+            ->get($apiUrl, [
+                'keyword' => $keyword,
+            ]);
+
+        // Periksa respons dan kembalikan hasil
+        if ($response->successful()) {
+            return response()->json($response->json(), 200);
+        }
+
+        return response()->json(['message' => 'Failed to fetch data'], 500);
     }
 }

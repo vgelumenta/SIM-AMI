@@ -11,7 +11,7 @@ class Competency extends Model
 
     protected $fillable = [
         'standard_id',
-        'statement',
+        'name',
     ];
 
     public function standard()

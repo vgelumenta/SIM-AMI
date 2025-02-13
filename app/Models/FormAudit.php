@@ -19,8 +19,9 @@ class FormAudit extends Model
         'description',
         'feedback',
         'comment',
-        'verification_status',
+        'validation_status',
         'conclusion',
+        'planning',
     ];
 
     public function form()

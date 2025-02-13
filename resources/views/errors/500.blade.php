@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>403 - SIM AMI ITK</title>
+    <title>500 - SIM AMI ITK</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="icon" href="{{ asset('images/Logo ITK.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -20,14 +20,16 @@
             </path>
         </svg>
         <h1 class="text-6xl font-semibold text-gray-700 dark:text-gray-200">
-            403
+            500
         </h1>
-        <p class="flex flex-col items-center gap-x-2 text-sm text-gray-700 dark:text-gray-300 md:flex-row md:text-lg">
-            {{ $exception->getMessage() ?: 'This Page is Restricted.' }}
-            <a href="/" class="font-semibold text-purple-600 hover:underline">
-                Find your own way.
-            </a>
-        </p>
+        <div class="flex flex-col items-center justify-center text-lg text-gray-700 dark:text-gray-300">
+            Oops! Something went wrong on our side.
+            <p class="text-xs font-semibold text-purple-600 md:text-lg">
+                Please
+                <a href="/" class="underline"> try again </a>
+                or contact PJM if the issue persists.
+            </p>
+        </div>
     </main>
 </body>
 

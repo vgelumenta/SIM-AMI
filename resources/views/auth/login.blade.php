@@ -55,7 +55,7 @@
             <div class="flex flex-col overflow-y-auto md:flex-row">
 
                 <div class="flex w-full flex-col items-center justify-center p-8 md:w-1/2">
-                    <img src="{{ asset('images/Logo ITK_text.png') }}" alt="Logo ITK" class="mx-auto h-24">
+                    <img src="{{ asset('images/Logo ITK with Text.png') }}" alt="Logo ITK" class="mx-auto h-24">
                     <h1 class="mt-5 text-center text-[16px] font-semibold text-gray-700">
                         Sistem Informasi Manajemen Audit Mutu Internal
                     </h1>
@@ -104,7 +104,7 @@
                     </p>
                 </div>
                 <div class="hidden w-1/2 md:block">
-                    <img aria-hidden="true" class="h-full w-full object-cover" src="{{ asset('images/itk.jpg') }}"
+                    <img aria-hidden="true" class="h-full w-full object-cover" src="{{ asset('images/login.jpg') }}"
                         alt="Office" />
                 </div>
 

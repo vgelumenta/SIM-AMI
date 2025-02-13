@@ -47,6 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/users', UserController::class);
     Route::get('/contacts/{id}/edit', [UserController::class, 'editContact'])->name('contacts.edit');
     Route::put('/contacts/{id}', [UserController::class, 'updateContact'])->name('contacts.update');
+    Route::get('/getUser', [UserController::class, 'getUser']);
     
     Route::resource('/documents', DocumentController::class);
     Route::get('/documents/drafts/{draft}/edit', [DocumentController::class, 'editDraft'])->name('documents.editDraft');
@@ -58,9 +59,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/forms/{form}/assessment', [FormController::class, 'updateAssessment'])->name('forms.updateAssessment');
     Route::get('/forms/{form}/feedback', [FormController::class, 'editFeedback'])->name('forms.editFeedback');
     Route::put('/forms/{form}/feedback', [FormController::class, 'updateFeedback'])->name('forms.updateFeedback');
-    Route::get('/forms/{form}/verification', [FormController::class, 'editVerification'])->name('forms.editVerification');
-    Route::put('/forms/{form}/verification', [FormController::class, 'updateVerification'])->name('forms.updateVerification');
+    Route::get('/forms/{form}/validation', [FormController::class, 'editValidation'])->name('forms.editValidation');
+    Route::put('/forms/{form}/validation', [FormController::class, 'updateValidation'])->name('forms.updateValidation');
+    Route::get('/forms/{form}/meeting', [FormController::class, 'editMeeting'])->name('forms.editMeeting');
+    Route::put('/forms/{form}/meeting', [FormController::class, 'updateMeeting'])->name('forms.updateMeeting');
+    Route::get('/forms/{form}/meetingVerification', [FormController::class, 'editMeetingVerification'])->name('forms.editMeetingVerification');
+    Route::put('/forms/{form}/meetingVerification', [FormController::class, 'updateMeetingVerification'])->name('forms.updateMeetingVerification');
+    Route::get('/forms/{form}/planning', [FormController::class, 'editPlanning'])->name('forms.editPlanning');
+    Route::put('/forms/{form}/planning', [FormController::class, 'updatePlanning'])->name('forms.updatePlanning');
+    Route::get('/forms/{form}/signing', [FormController::class, 'editSigning'])->name('forms.editSigning');
+    Route::put('/forms/{form}/signing', [FormController::class, 'updateSigning'])->name('forms.updateSigning');
+    Route::get('/forms/{form}/signingVerification', [FormController::class, 'editSigningVerification'])->name('forms.editSigningVerification');
+    Route::put('/forms/{form}/signingVerification', [FormController::class, 'updateSigningVerification'])->name('forms.updateSigningVerification');
+    Route::get('/forms/{form}/report', [FormController::class, 'showReport'])->name('forms.showReport');
     
-    Route::get('/forms/{form}/export', [FormController::class, 'export'])->name('forms.export');
-    
+    Route::get('/forms/{form}/export', [FormController::class, 'export'])->name('forms.export');    
 });

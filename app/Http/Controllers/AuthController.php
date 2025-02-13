@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Form;
 use App\Models\User;
 use App\Models\Stage;
 use Illuminate\Http\Request;
@@ -46,18 +47,82 @@ class AuthController extends Controller
             } else {
                 return back()->withErrors(['Error' => 'Login gagal, coba lagi']);
             }
-
         } else {
-            
-            return back()->withErrors(['Error' => 'Pengguna belum terdaftar.']);
 
+            return back()->withErrors(['Error' => 'Pengguna belum terdaftar.']);
         }
     }
 
-    public function index()
+    public function index(Form $form)
     {
         $stages = Stage::all();
-        return view('dashboard', compact('stages'));
+
+        $users = User::where('last_seen', '>=', now()->subMinutes(3))
+            ->orderBy('last_seen', 'desc')
+            ->get();
+
+        // $forms = Form::with('formTime')->where('document_id', 2)->get();
+
+        $forms = Form::with([
+            'formAudits.indicator.competency.standard.category',
+            'formTime'
+        ])->where('document_id', 2)->get();
+
+        $categoriesStats = [];
+
+        foreach ($forms as $form) {
+            // Grupkan formAudits berdasarkan kategori
+            $grouped = $form->formAudits->groupBy('indicator.competency.standard.category.id');
+
+            foreach ($grouped as $categoryId => $category) {
+                if (!isset($categoriesStats[$categoryId])) {
+                    $categoriesStats[$categoryId] = [
+                        'total_standards' => 0,
+                        'passed_standards' => 0,
+                    ];
+                }
+
+                foreach ($category->groupBy('indicator.competency.standard.id') as $standardId => $standard) {
+                    $categoriesStats[$categoryId]['total_standards']++;
+
+                    $allCompetenciesPassed = true;
+                    foreach ($standard->groupBy('indicator.competency.id') as $competencyId => $indicators) {
+                        $competencyPassed = $indicators->every(fn($indicator) => $indicator->validation_status >= 3);
+                        if (!$competencyPassed) {
+                            $allCompetenciesPassed = false;
+                            break;
+                        }
+                    }
+
+                    if ($allCompetenciesPassed) {
+                        $categoriesStats[$categoryId]['passed_standards']++;
+                    }
+                }
+            }
+        }
+
+        // Hitung persentase lulus untuk setiap kategori
+        $categoryPercentages = [];
+
+        foreach ($categoriesStats as $categoryId => $stats) {
+            $total = $stats['total_standards'];
+            $passed = $stats['passed_standards'];
+            $categoryPercentages[$categoryId] = $total > 0 ? round(($passed / $total) * 100, 2) : 0;
+        }
+
+        // Debugging
+        // dd($categoryPercentages);
+
+        // Hitung rata-rata persentase kategori dari semua form
+        // $averageCategoryPercentage = $totalForms > 0 ? $totalCategoryPercentage / $totalForms : 0;
+
+        // Hitung jumlah tepat waktu dan tidak tepat waktu
+        [$tepatWaktu, $tidakTepatWaktu] = $forms->partition(function ($form) {
+            return optional($form->formTime)->submission_time <= optional($form->formTime)->submission_deadline;
+        })->map->count();
+
+        // Kirim data ke view
+        return view('dashboard', compact('stages', 'users', 'tepatWaktu', 'tidakTepatWaktu', 'categoryPercentages'));
     }
 
     public function updateStage(Request $request, Stage $stage)

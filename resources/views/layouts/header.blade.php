@@ -110,7 +110,7 @@
                                     <span>Profile</span>
                                 </a>
                             </li>
-                            <li class="flex">
+                            {{-- <li class="flex">
                                 <a class="inline-flex w-full items-center rounded-md px-2 py-1 text-sm font-semibold transition-colors duration-150 hover:bg-gray-300"
                                     href="/edit-password">
                                     <svg class="mr-3 h-4 w-4" aria-hidden="true" fill="none" stroke-linecap="round"
@@ -123,7 +123,7 @@
                                     </svg>
                                     <span>Change Password</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             @if (Auth::user()->roles->count() > 1)
                                 @foreach (Auth::user()->roles->where('name', '!=', $userRole) as $role)

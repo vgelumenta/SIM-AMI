@@ -15,13 +15,13 @@
 
 <body>
     <div class="flex min-h-screen items-center p-6"
-        style="background-image: url('/images/itk1.JPG'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        style="background-image: url('/images/edit-contact.JPG'); background-size: cover; background-position: center; background-repeat: no-repeat;">
         <div class="bg-tranparent mx-auto h-1/3 max-w-7xl flex-1 overflow-hidden rounded-3xl px-16 text-white">
             <div class="flex flex-col justify-end overflow-y-auto md:flex-row">
                 <div class="bg-blue flex w-full flex-col items-center justify-center rounded-lg p-8 md:w-1/3"
                     style="background-color: rgb(151, 185, 215, 0.75);">
                     <div class="rounded-lg bg-white p-2">
-                        <img src="{{ asset('images/Logo ITK_text.png') }}" alt="Logo ITK" class="mx-auto h-24">
+                        <img src="{{ asset('images/Logo ITK with Text.png') }}" alt="Logo ITK" class="mx-auto h-24">
                     </div>
                     <h1 class="mt-5 text-center text-[16px] font-semibold">
                         Sistem Informasi Manajemen Audit Mutu Internal

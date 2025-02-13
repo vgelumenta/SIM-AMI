@@ -273,7 +273,7 @@
                                             <div class="flex w-full justify-center md:px-20">
                                                 <ul class="space-y-3">
                                                     <li>
-                                                        <input value="Pimpinan" readonly name="positions[]"
+                                                        <input value="Chief" readonly name="positions[]"
                                                             class="w-full items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                     </li>
                                                     <li>
@@ -350,7 +350,7 @@
                                                     <li class="flex items-center">
                                                         <div class="relative flex items-center">
                                                             <input type="text" id="auditeeName-0"
-                                                                value="{{ optional($formAccesses->firstWhere('position', 'Pimpinan'))->user->name ?? '' }}"
+                                                                value="{{ optional($formAccesses->firstWhere('position', 'Chief'))->user->name ?? '' }}"
                                                                 @input="searchUsers('auditee', 0)" name="user_names[]"
                                                                 class="w-full rounded-e-lg border border-s-2 border-gray-300 border-s-gray-50 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:border-s-gray-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500"
                                                                 placeholder="Search User" />
@@ -470,17 +470,17 @@
                                             <div class="flex w-full md:px-20">
                                                 <ul class="space-y-3">
                                                     <li>
-                                                        <input value="Ketua" readonly name="positions[]"
+                                                        <input value="Leader" readonly name="positions[]"
                                                             class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                     </li>
                                                     <li>
-                                                        <input value="Anggota" readonly name="positions[]"
+                                                        <input value="Member" readonly name="positions[]"
                                                             class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                     </li>
                                                     <template x-for="(item, itemIndex) in auditors || []"
                                                         :key="item">
                                                         <li>
-                                                            <input :value="'Anggota ' + item.id" readonly
+                                                            <input :value="'Member ' + item.id" readonly
                                                                 name="positions[]"
                                                                 class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                         </li>
@@ -640,7 +640,7 @@
                                                     {
                                                         id: {{ $competency['id'] }},
                                                         standard_id: '{{ $standard['id'] }}',
-                                                        statement: '{{ $competency['statement'] }}',
+                                                        name: '{{ $competency['name'] }}',
                                                         indicators: [
                                                             @if (isset($indicatorsByCompetency[$competency['id']]))
                                                                 @foreach ($indicatorsByCompetency[$competency['id']] as $indicator)
@@ -651,18 +651,17 @@
                                                                     assessment: '{{ $indicator['assessment'] }}',
                                                                     entry: '{{ $indicator['entry'] }}',
                                                                     rate_option: '{{ $indicator['rate_option'] }}',
-                                                                    disable_text: '{{ $indicator['disable_text'] }}',
                                                                     info: '{{ $indicator['info'] }}',
                                                                     isDisabled: false
                                                                 }, @endforeach
                                                             @else
-                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', rate_option: '', disable_text: '', info: '' }
+                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', rate_option: '', info: '' }
                                                             @endif
                                                         ]
                                                     },
                                                     @endforeach
                                                 @else
-                                                    { id: 1, statement: '', standard_id: '', indicators: [] }
+                                                    { id: 1, name: '', standard_id: '', indicators: [] }
                                                 @endif
                                             ]
                                         },
@@ -775,7 +774,7 @@
                                                             <tr>
                                                                 <td
                                                                     class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                                    <div x-text="competency.statement"
+                                                                    <div x-text="competency.name"
                                                                         style="text-align: justify;"
                                                                         class="w-full text-indigo-800">
                                                                     </div>
@@ -870,12 +869,10 @@
                                                                                         indicator.entry === 'Cost' ? indicator.entry + ' ($)' :
                                                                                         indicator.entry === 'Percentage' ? indicator.entry + ' (%)' :
                                                                                         indicator.rate_option === '1-10' ? indicator.entry + ' (1/10)' :
-                                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' :
-                                                                                        indicator.entry === 'Disable' ? indicator.disable_text : ''">
+                                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' : ''">
                                                                                     </div>
                                                                                     <!-- md: Popover -->
-                                                                                    <div x-show="
-                                                                                    ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
+                                                                                    <div
                                                                                         class="hs-tooltip hidden items-center justify-center [--trigger:hover] md:flex">
                                                                                         <div class="hs-tooltip-toggle">
                                                                                             <button type="button"
@@ -954,9 +951,6 @@
                                                                                                     class="flex flex-col gap-2 px-4 py-3 text-sm text-gray-600 dark:text-neutral-400">
                                                                                                     <p
                                                                                                         x-text="indicator.entry">
-                                                                                                    </p>
-                                                                                                    <p
-                                                                                                        x-text="indicator.disable_text">
                                                                                                     </p>
                                                                                                     <p
                                                                                                         x-text="indicator.rate_option">

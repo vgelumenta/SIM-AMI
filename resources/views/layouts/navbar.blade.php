@@ -25,7 +25,7 @@
             </a>
         </li>
 
-        <li
+        {{-- <li
             class="{{ Request::is('calendar*') ? 'font-bold text-blue-800 dark:text-cool-gray-50 bg-cool-gray-50 dark:bg-gray-800' : 'text-gray-500 hover:bg-cool-gray-50 dark:hover:bg-gray-800' }}">
             <a href="/calendar" class="flex w-full items-center justify-between px-1 py-3 pl-8">
                 <div class="flex items-center gap-x-5">
@@ -38,7 +38,7 @@
                     <span>Calendar</span>
                 </div>
             </a>
-        </li>
+        </li> --}}
 
         <li
             class="{{ Request::is('forms*') ? 'font-bold text-blue-800 dark:text-cool-gray-50 bg-cool-gray-50 dark:bg-gray-800' : 'text-gray-500 hover:bg-cool-gray-50 dark:hover:bg-gray-800' }}">
@@ -145,7 +145,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li
+                        {{-- <li
                             class="{{ Request::is('logs*') ? 'text-blue-800 dark:text-cool-gray-50 bg-cool-gray-50 dark:bg-gray-800' : 'text-gray-500 hover:text-blue-800' }}">
                             <a class="flex w-full items-center justify-between" href="/logs">
                                 <div class="flex items-center gap-x-4">
@@ -159,7 +159,7 @@
                                     <span>Logs</span>
                                 </div>
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </template>
             </li>
@@ -231,7 +231,7 @@
                 </a>
             </li>
 
-            <li class="relative px-6 py-2">
+            {{-- <li class="relative px-6 py-2">
                 <span
                     class="{{ Request::is('calendar*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
                 <a class="{{ Request::is('calendar*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
@@ -244,7 +244,7 @@
                     </svg>
                     <span class="ml-4">Calendar</span>
                 </a>
-            </li>
+            </li> --}}
 
             <li class="relative px-6 py-2">
                 <span
@@ -322,7 +322,7 @@
                     </a>
                 </li>
 
-                <li class="relative px-6 py-2">
+                {{-- <li class="relative px-6 py-2">
                     <span
                         class="{{ Request::is('logs*') ? '' : 'hidden' }} absolute inset-y-0 left-0 w-1 rounded-br-lg rounded-tr-lg bg-blue-800 dark:bg-indigo-600"></span>
                     <a class="{{ Request::is('logs*') ? 'font-semibold text-blue-800 dark:text-indigo-500' : 'hover:text-blue-800 dark:hover:text-gray-100' }} inline-flex w-full items-center text-sm font-semibold transition-colors duration-150"
@@ -335,7 +335,7 @@
                         </svg>
                         <span class="ml-4">Logs</span>
                     </a>
-                </li>
+                </li> --}}
             @endif
 
             {{-- @if ($userRole == 'Auditee')

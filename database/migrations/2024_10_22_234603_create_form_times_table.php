@@ -23,9 +23,18 @@ return new class extends Migration
             $table->datetime('feedback_time')->nullable();
             $table->datetime('feedback_deadline')->nullable();
             $table->boolean('feedback_extended')->default(false);
-            $table->datetime('verification_time')->nullable();
-            $table->datetime('verification_deadline')->nullable();
-            $table->boolean('verification_extended')->default(false);
+            $table->datetime('validation_time')->nullable();
+            $table->datetime('validation_deadline')->nullable();
+            $table->boolean('validation_extended')->default(false);
+            $table->datetime('meeting_time')->nullable();
+            $table->datetime('meeting_deadline')->nullable();
+            $table->boolean('meeting_extended')->default(false);
+            $table->datetime('planning_time')->nullable();
+            $table->datetime('planning_deadline')->nullable();
+            $table->boolean('planning_extended')->default(false);
+            $table->datetime('signing_time')->nullable();
+            $table->datetime('signing_deadline')->nullable();
+            $table->boolean('signing_extended')->default(false);
             $table->timestamps();
         });
     }

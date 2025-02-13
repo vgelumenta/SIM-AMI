@@ -24,6 +24,7 @@
                 <li class="xl:hidden">{{ $form->unit->code }}</li>
                 <li class="hidden xl:block">{{ $form->unit->name }}</li>
             </ol>
+
             <button type="button" @click="openContact()"
                 class="inline-flex gap-x-1 rounded-sm border-2 border-green-400 bg-green-400 p-1 text-sm text-white transition hover:shadow-outline-green">
                 <span class="hidden lg:block">Contact</span>
@@ -139,7 +140,7 @@
             </div>
 
             <div id="scrollspy-scrollable-parent-2"
-                class="shadow-xs h-[90%] w-full overflow-y-auto rounded border-2 border-gray-200 bg-white px-2 text-center scrollbar-thin dark:border-gray-300 dark:bg-gray-700 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800">
+                class="shadow-xs h-[90%] w-full overflow-y-auto rounded border-2 border-gray-200 bg-white px-2 scrollbar-thin dark:border-gray-300 dark:bg-gray-700 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800">
                 <template x-for="category in categories" :key="category.id">
                     <div x-show="openTab === category.id, initTextareas()" class="grid grid-cols-7 gap-4">
                         <div class="col-span-1">
@@ -191,9 +192,9 @@
                                                     <tr>
                                                         <td
                                                             class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                            <textarea x-model="competency.statement" disabled
+                                                            <textarea x-model="competency.name" disabled
                                                                 class="w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-indigo-700 focus:ring-0"
-                                                                style="text-align: justify;" placeholder="Competency Statement">
+                                                                style="text-align: justify;" placeholder="Competency Name">
                                                             </textarea>
                                                         </td>
                                                         <td
@@ -278,28 +279,28 @@
                                                                                 </div>
                                                                             </template>
                                                                             <template
-                                                                                x-if="indicator.verification_status == 1">
+                                                                                x-if="indicator.validation_status == 1">
                                                                                 <div
                                                                                     class="text-red-500 dark:text-neutral-500 dark:focus:text-blue-500">
                                                                                     <i class="fa-solid fa-d"></i>
                                                                                 </div>
                                                                             </template>
                                                                             <template
-                                                                                x-if="indicator.verification_status == 2">
+                                                                                x-if="indicator.validation_status == 2">
                                                                                 <div
                                                                                     class="text-yellow-300 dark:text-neutral-500 dark:focus:text-blue-500">
                                                                                     <i class="fa-solid fa-c"></i>
                                                                                 </div>
                                                                             </template>
                                                                             <template
-                                                                                x-if="indicator.verification_status == 3">
+                                                                                x-if="indicator.validation_status == 3">
                                                                                 <div
                                                                                     class="text-green-400 dark:text-neutral-500 dark:focus:text-blue-500">
                                                                                     <i class="fa-solid fa-b"></i>
                                                                                 </div>
                                                                             </template>
                                                                             <template
-                                                                                x-if="indicator.verification_status == 4">
+                                                                                x-if="indicator.validation_status == 4">
                                                                                 <div
                                                                                     class="text-blue-500 dark:text-neutral-500 dark:focus:text-blue-500">
                                                                                     <i class="fa-solid fa-a"></i>
@@ -307,33 +308,8 @@
                                                                             </template>
                                                                         </div>
                                                                     </div>
-                                                                    <template x-if="indicator.entry == 'Disable'">
-                                                                        <div x-show="indicator.disable_text"
-                                                                            class="hs-tooltip">
-                                                                            <svg class="size-6 hs-tooltip-toggle cursor-pointer text-gray-500 hover:text-indigo-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500"
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                fill="none" stroke="currentColor"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round">
-                                                                                <path
-                                                                                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <div style="text-align: justify;"
-                                                                                class="hs-tooltip-content invisible absolute z-10 hidden max-w-xs rounded-lg border border-gray-100 bg-white p-3 text-gray-600 opacity-0 shadow-md transition-opacity hs-tooltip-shown:visible hs-tooltip-shown:opacity-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
-                                                                                <h3 class="font-bold text-indigo-600">
-                                                                                    Indicator Info</h3>
-                                                                                <p class="text-sm"
-                                                                                    x-text="indicator.disable_text">
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </template>
                                                                     <!-- Modal Content -->
                                                                     <button @click="openIndicator(indicator.id)"
-                                                                        x-show="
-                                                                            ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
                                                                         type="button"
                                                                         class="text-blue-600 hover:text-blue-700 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
                                                                         <i class="fa-solid fa-eye"></i>
@@ -443,7 +419,7 @@
                                                                                                         placeholder="Digit"
                                                                                                         class="peer block w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                                                                                                     <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
+                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500 rtl:peer-focus:translate-x-1/4">
                                                                                                         Digit
                                                                                                     </div>
                                                                                                 </div>
@@ -457,7 +433,7 @@
                                                                                                         placeholder="Decimal"
                                                                                                         class="peer block w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                                                                                                     <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
+                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500 rtl:peer-focus:translate-x-1/4">
                                                                                                         Decimal
                                                                                                     </div>
                                                                                                 </div>
@@ -471,7 +447,7 @@
                                                                                                         placeholder="Rupiah"
                                                                                                         class="peer block w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500" />
                                                                                                     <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
+                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500 rtl:peer-focus:translate-x-1/4">
                                                                                                         Rupiah
                                                                                                     </div>
                                                                                                 </div>
@@ -485,7 +461,7 @@
                                                                                                         placeholder="Percentage"
                                                                                                         class="peer block w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent px-4 py-2.5 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                                                                                                     <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
+                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-4 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500 rtl:peer-focus:translate-x-1/4">
                                                                                                         Percentage
                                                                                                     </div>
                                                                                                     <div
@@ -523,7 +499,7 @@
                                                                                                         placeholder="Range 1 - 100"
                                                                                                         class="peer block w-full appearance-none border-0 border-b-2 border-gray-200 bg-transparent p-3 placeholder-transparent focus:border-indigo-600 focus:placeholder-gray-400 focus:ring-0 dark:border-gray-600 dark:text-white dark:focus:border-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
                                                                                                     <div
-                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-3 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 rtl:peer-focus:translate-x-1/4 dark:text-gray-400 peer-focus:dark:text-blue-500">
+                                                                                                        class="absolute top-2.5 -z-10 origin-[0] -translate-y-6 scale-75 transform px-3 text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:text-blue-600 dark:text-gray-400 peer-focus:dark:text-blue-500 rtl:peer-focus:translate-x-1/4">
                                                                                                         Rate
                                                                                                     </div>
                                                                                                     <div
@@ -603,7 +579,7 @@
                                                                                                 class="fa-regular fa-comment-dots fa-lg w-6"></i>
                                                                                             <textarea disabled x-model="indicator.description"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Auditor comments">
+                                                                                                style="text-align: justify" placeholder="Assessment description">
                                                                                             </textarea>
                                                                                         </div>
                                                                                     </div>
@@ -640,17 +616,17 @@
                                                                                                 class="fa-regular fa-comment-dots fa-lg w-6"></i>
                                                                                             <textarea disabled x-model="indicator.comment"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Auditee comments">
+                                                                                                style="text-align: justify" placeholder="Auditee comment">
                                                                                             </textarea>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
                                                                                 <!-- End Feedback Form -->
 
-                                                                                <!-- Verification Form -->
+                                                                                <!-- Validation Form -->
                                                                                 <div
                                                                                     class="{{ $form->stage_id == 4 ? 'text-indigo-600' : 'text-gray-500' }} flex w-full flex-col gap-y-2 text-left">
-                                                                                    Verification Form
+                                                                                    Validation Form
                                                                                     <!-- Modal form -->
                                                                                     <div class="space-y-6">
                                                                                         <div
@@ -665,7 +641,7 @@
                                                                                                 </path>
                                                                                             </svg>
                                                                                             <select disabled
-                                                                                                x-model="indicator.verification_status"
+                                                                                                x-model="indicator.validation_status"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0">
                                                                                                 <option hidden
                                                                                                     value="">
@@ -692,12 +668,12 @@
                                                                                             </svg>
                                                                                             <textarea disabled x-model="indicator.conclusion"
                                                                                                 class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-4 font-semibold scrollbar-thin focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0 dark:scrollbar-track-gray-500 dark:scrollbar-thumb-gray-800"
-                                                                                                style="text-align: justify" placeholder="Enter final conclusion">
+                                                                                                style="text-align: justify" placeholder="Final conclusion">
                                                                                         </textarea>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                                <!-- End Verification Form -->
+                                                                                <!-- End Validation Form -->
                                                                             </div>
                                                                             <!-- End Modal body -->
                                                                             <footer
@@ -754,7 +730,7 @@
                                             @foreach ($standard->groupBy('indicator.competency.id') as $competencyIndex => $indicators)
                                                 {
                                                     id: '{{ $competencyIndex }}',
-                                                    statement: @json($indicators->first()->indicator->competency->statement),
+                                                    name: @json($indicators->first()->indicator->competency->name),
                                                     indicators: [
                                                         @foreach ($indicators as $indicator)
                                                             {
@@ -766,13 +742,12 @@
                                                                 description: @json($indicator->description),
                                                                 feedback: '{{ $indicator->feedback }}',
                                                                 comment: @json($indicator->comment),
-                                                                verification_status: '{{ $indicator->verification_status }}',
+                                                                validation_status: '{{ $indicator->validation_status }}',
                                                                 conclusion: @json($indicator->conclusion),
                                                                 code: '{{ $indicator->indicator->code }}',
                                                                 assessment: @json($indicator->indicator->assessment),
                                                                 entry: '{{ $indicator->indicator->entry }}',
                                                                 rate_option: '{{ $indicator->indicator->rate_option }}',
-                                                                disable_text: @json($indicator->indicator->disable_text),
                                                             },
                                                         @endforeach
                                                     ]

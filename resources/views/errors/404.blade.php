@@ -22,9 +22,9 @@
         <h1 class="text-6xl font-semibold text-gray-700 dark:text-gray-200">
             404
         </h1>
-        <p class="flex flex-col items-center gap-x-2 text-sm text-gray-700 dark:text-gray-300 md:text-lg md:flex-row">
+        <p class="flex flex-col items-center gap-x-2 text-sm text-gray-700 dark:text-gray-300 md:flex-row md:text-lg">
             Page will be available soon.
-            <a href="/" class="font-semibold text-purple-600 hover:underline dark:text-purple-600">
+            <a href="/" class="font-semibold text-purple-600 hover:underline">
                 Find your own way.
             </a>
         </p>

@@ -72,7 +72,7 @@
                                 @foreach ($competenciesByStandard[$standard['id']] as $competency) {
                                     id: {{ $competency['id'] }},
                                     standard_id: '{{ $standard['id'] }}',
-                                    statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
+                                    name: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['name'])) }}',
                                     indicators: [
                                         @if (isset($indicatorsByCompetency[$competency['id']]))
                                             @foreach ($indicatorsByCompetency[$competency['id']] as $indicator) {
@@ -83,15 +83,14 @@
                                                 entry: '{{ $indicator['entry'] }}',
                                                 link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                                 rate_option: '{{ $indicator['rate_option'] }}',
-                                                disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                             }, @endforeach
                                         @else
-                                            { id: 1, competency_id: 1, code: '', assessment: '',  entry: '', link_info: '', rate_option: '', disable_text: '' }
+                                            { id: 1, competency_id: 1, code: '', assessment: '',  entry: '', link_info: '', rate_option: '' }
                                         @endif
                                     ]
                                 }, @endforeach
                             @else
-                                { id: 1, standard_id: 1, statement: '', indicators: [] }
+                                { id: 1, standard_id: 1, name: '', indicators: [] }
                             @endif
                             ]
                         }, @endforeach
@@ -100,7 +99,7 @@
                     @endif
                     ]
                 }, @empty 
-                { id: 1, name: '', standards: [] }  @endforelse
+                { id: 1, name: '', standards: [] } @endforelse
             ],
             updateAllIds() {
                 let categoryId = 1,
@@ -165,7 +164,7 @@
                 let category = this.categories.find(cat => cat.id === this.openTab);
                 category.standards[standardId].competencies.push({
                     id: 0,
-                    statement: '',
+                    name: '',
                     indicators: []
                 });
                 this.updateAllIds();
@@ -337,11 +336,11 @@
                                                     <input type="hidden" x-model="competency.standard_id"
                                                         :name="'categories[' + index + '][standards][' + standardIndex +
                                                             '][competencies][' + competencyIndex + '][standard_id]'" />
-                                                    <textarea x-model="competency.statement"
+                                                    <textarea x-model="competency.name"
                                                         :name="'categories[' + index + '][standards][' + standardIndex +
-                                                            '][competencies][' + competencyIndex + '][statement]'"
+                                                            '][competencies][' + competencyIndex + '][name]'"
                                                         class="w-full resize-none overflow-hidden border-0 bg-transparent font-semibold text-indigo-800 focus:ring-0"
-                                                        placeholder="Enter Competency Statement" style="text-align: justify;">
+                                                        placeholder="Enter Competency Name" style="text-align: justify;">
                                                     </textarea>
                                                 </td>
                                                 <td
@@ -492,8 +491,6 @@
                                                                                         Percentage ( % )</option>
                                                                                     <option value="Rate">
                                                                                         Rate ( * )</option>
-                                                                                    <option value="Disable">
-                                                                                        Disable ( )</option>
                                                                                 </select>
                                                                             </div>
 
@@ -519,21 +516,6 @@
                                                                                         <option value="1-100">1-100
                                                                                         </option>
                                                                                     </select>
-                                                                                </template>
-                                                                                <template
-                                                                                    x-if="indicator.entry === 'Disable'">
-                                                                                    <textarea x-model="indicator.disable_text" @keydown.enter.prevent
-                                                                                        :name="'categories[' + index +
-                                                                                            '][standards][' +
-                                                                                            standardIndex +
-                                                                                            '][competencies][' +
-                                                                                            competencyIndex +
-                                                                                            '][indicators][' +
-                                                                                            indicatorIndex +
-                                                                                            '][disable_text]'"
-                                                                                        class="w-[90%] border-b-2 border-x-transparent border-b-gray-200 border-t-transparent bg-transparent px-3 py-0 font-semibold text-indigo-800 focus:border-x-transparent focus:border-b-indigo-600 focus:border-t-transparent focus:ring-0"
-                                                                                        placeholder="Enter some text">
-                                                                                    </textarea>
                                                                                 </template>
                                                                             </div>
 

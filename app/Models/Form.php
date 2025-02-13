@@ -13,6 +13,12 @@ class Form extends Model
         'document_id',
         'unit_id',
         'stage_id',
+        'meeting',
+        'meeting_time',
+        'meeting_verification',
+        'verification_info',
+        'signing',
+        'signing_verification',
     ];
 
     public function document()

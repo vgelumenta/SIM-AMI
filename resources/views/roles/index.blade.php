@@ -18,11 +18,11 @@
         <div class="mx-auto h-1/3 max-w-4xl flex-1 overflow-hidden rounded-3xl bg-white shadow-xl">
             <div class="flex flex-col overflow-y-auto md:flex-row">
                 <div class="hidden w-1/2 md:block">
-                    <img aria-hidden="true" class="h-full w-full object-cover" src="{{ asset('images/itk2.JPG') }}"
+                    <img aria-hidden="true" class="h-full w-full object-cover" src="{{ asset('images/role.JPG') }}"
                         alt="Office" />
                 </div>
                 <div class="flex w-full flex-col items-center justify-center p-8 md:w-1/2">
-                    <img src="{{ asset('images/Logo ITK_text.png') }}" alt="Logo ITK" class="mx-auto h-24">
+                    <img src="{{ asset('images/Logo ITK with Text.png') }}" alt="Logo ITK" class="mx-auto h-24">
                     <h1 class="mt-5 text-center text-[16px] font-semibold text-gray-700">
                         Sistem Informasi Manajemen Audit Mutu Internal
                     </h1>

@@ -20,9 +20,18 @@ class FormTime extends Model
         'feedback_time',
         'feedback_deadline',
         'feedback_extended',
-        'verification_time',
-        'verification_deadline',
-        'verification_extended',
+        'validation_time',
+        'validation_deadline',
+        'validation_extended',
+        'meeting_time',
+        'meeting_deadline',
+        'meeting_extended',
+        'planning_time',
+        'planning_deadline',
+        'planning_extended',
+        'signing_time',
+        'signing_deadline',
+        'signing_extended',
     ];
 
     public function form()

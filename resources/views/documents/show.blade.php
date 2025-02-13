@@ -67,7 +67,7 @@
                                     {
                                         id: {{ $competency['id'] }},
                                         standard_id: '{{ $standard['id'] }}',
-                                        statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
+                                        name: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['name'])) }}',
                                         indicators: [
                                             @if (isset($indicatorsByCompetency[$competency['id']]))
                                                 @foreach ($indicatorsByCompetency[$competency['id']] as $indicator)
@@ -79,17 +79,16 @@
                                                     entry: '{{ $indicator['entry'] }}',
                                                     link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                                     rate_option: '{{ $indicator['rate_option'] }}',
-                                                    disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                                     isDisabled: false
                                                 }, @endforeach
                                             @else
-                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', link_info: '', rate_option: '', disable_text: '' }
+                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', link_info: '', rate_option: '' }
                                             @endif
                                         ]
                                     },
                                     @endforeach
                                 @else
-                                    { id: 1, statement: '', standard_id: '', indicators: [] }
+                                    { id: 1, name: '', standard_id: '', indicators: [] }
                                 @endif
                             ]
                         },
@@ -153,7 +152,7 @@
                                             <tr>
                                                 <td
                                                     class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                    <div x-text="competency.statement" style="text-align: justify;"
+                                                    <div x-text="competency.name" style="text-align: justify;"
                                                         class="w-full text-indigo-800">
                                                     </div>
                                                 </td>
@@ -193,12 +192,10 @@
                                                                         indicator.entry === 'Cost' ? indicator.entry + ' ($)' :
                                                                         indicator.entry === 'Percentage' ? indicator.entry + ' (%)' :
                                                                         indicator.rate_option === '1-10' ? indicator.entry + ' (1/10)' :
-                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' :
-                                                                        indicator.entry === 'Disable' ? indicator.disable_text : ''">
+                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' : ''">
                                                                 </div>
                                                                 <!-- md: Popover -->
-                                                                <div x-show="
-                                                                    ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
+                                                                <div
                                                                     class="hs-tooltip hidden items-center justify-center [--trigger:hover] md:flex">
                                                                     <div class="hs-tooltip-toggle">
                                                                         <button type="button"

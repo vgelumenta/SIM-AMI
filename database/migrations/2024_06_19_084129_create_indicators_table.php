@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('indicators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('competency_id')->nullable()->constrained()->onDelete('cascade');
-            $table->string('code');
+            $table->foreignId('competency_id')->constrained()->onDelete('cascade');
             $table->text('assessment');
+            $table->string('code');
             $table->string('entry');
             $table->string('rate_option')->nullable();
-            $table->string('disable_text')->nullable();
             $table->string('link_info')->nullable();
             $table->timestamps();
         });

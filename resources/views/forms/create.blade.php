@@ -287,7 +287,7 @@
                                                 <div class="flex w-full justify-center md:px-20">
                                                     <ul class="space-y-3">
                                                         <li>
-                                                            <input value="Pimpinan" readonly
+                                                            <input value="Chief" readonly
                                                                 :name="'positions[' + option + '][]'"
                                                                 class="w-full items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                         </li>
@@ -434,19 +434,19 @@
                                                 <div class="flex w-full md:px-20">
                                                     <ul class="space-y-3">
                                                         <li>
-                                                            <input value="Ketua" readonly
+                                                            <input value="Leader" readonly
                                                                 :name="'positions[' + option + '][]'"
                                                                 class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                         </li>
                                                         <li>
-                                                            <input value="Anggota" readonly
+                                                            <input value="Member" readonly
                                                                 :name="'positions[' + option + '][]'"
                                                                 class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                         </li>
                                                         <template x-for="(item, itemIndex) in auditors[option] || []"
                                                             :key="item">
                                                             <li>
-                                                                <input :value="'Anggota ' + item.id" readonly
+                                                                <input :value="'Member ' + item.id" readonly
                                                                     :name="'positions[' + option + '][]'"
                                                                     class="items-center rounded-s-lg border border-gray-300 bg-gray-100 py-2.5 text-center text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-4 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-700" />
                                                             </li>
@@ -607,7 +607,7 @@
                                                     {
                                                         id: {{ $competency['id'] }},
                                                         standard_id: '{{ $standard['id'] }}',
-                                                        statement: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['statement'])) }}',
+                                                        name: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($competency['name'])) }}',
                                                         indicators: [
                                                             @if (isset($indicatorsByCompetency[$competency['id']]))
                                                                 @foreach ($indicatorsByCompetency[$competency['id']] as $indicator)
@@ -619,17 +619,16 @@
                                                                     entry: '{{ $indicator['entry'] }}',
                                                                     link_info: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['link_info'])) }}',
                                                                     rate_option: '{{ $indicator['rate_option'] }}',
-                                                                    disable_text: '{{ str_replace(["\r\n", "\r", "\n"], "\\n", e($indicator['disable_text'])) }}',
                                                                     isDisabled: false
                                                                 }, @endforeach
                                                             @else
-                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', info: '', rate_option: '', disable_text: '' }
+                                                                { id: 1, competency_id: '', code: '', assessment: '',  entry: '', link_info: '', rate_option: '' }
                                                             @endif
                                                         ]
                                                     },
                                                     @endforeach
                                                 @else
-                                                    { id: 1, statement: '', standard_id: '', indicators: [] }
+                                                    { id: 1, name: '', standard_id: '', indicators: [] }
                                                 @endif
                                             ]
                                         },
@@ -755,9 +754,9 @@
                                                             <tr>
                                                                 <td
                                                                     class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                                    <textarea x-model="competency.statement" disabled
+                                                                    <textarea x-model="competency.name" disabled
                                                                         class="w-full resize-none overflow-hidden border-0 bg-transparent font-semibold text-indigo-800 focus:ring-0"
-                                                                        style="text-align: justify;" placeholder="Competency Statement">
+                                                                        style="text-align: justify;" placeholder="Competency Name">
                                                             </textarea>
                                                                 </td>
                                                                 <td colspan="2"
@@ -850,12 +849,10 @@
                                                                                         indicator.entry === 'Cost' ? indicator.entry + ' ($)' :
                                                                                         indicator.entry === 'Percentage' ? indicator.entry + ' (%)' :
                                                                                         indicator.rate_option === '1-10' ? indicator.entry + ' (1/10)' :
-                                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' :
-                                                                                        indicator.entry === 'Disable' ? indicator.disable_text : ''">
+                                                                                        indicator.rate_option === '1-100' ? indicator.entry + ' (1/100)' : ''">
                                                                                     </div>
                                                                                     <!-- md: Popover -->
-                                                                                    <div x-show="
-                                                                                    ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
+                                                                                    <div
                                                                                         class="hs-tooltip hidden items-center justify-center [--trigger:hover] md:flex">
                                                                                         <div class="hs-tooltip-toggle">
                                                                                             <button type="button"
@@ -934,9 +931,6 @@
                                                                                                     class="flex flex-col gap-2 px-4 py-3 text-sm text-gray-600 dark:text-neutral-400">
                                                                                                     <p
                                                                                                         x-text="indicator.entry">
-                                                                                                    </p>
-                                                                                                    <p
-                                                                                                        x-text="indicator.disable_text">
                                                                                                     </p>
                                                                                                     <p
                                                                                                         x-text="indicator.rate_option">

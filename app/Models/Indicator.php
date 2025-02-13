@@ -11,12 +11,11 @@ class Indicator extends Model
 
     protected $fillable = [
         'competency_id',
-        'code',
         'assessment',
+        'code',
         'entry',
         'rate_option',
-        'disable_text',
-        'info',
+        'link_info',
     ];
 
     public function competency()

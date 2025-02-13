@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('form_audits', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('form_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('indicator_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('form_id')->constrained()->onDelete('cascade');
+            $table->foreignId('indicator_id')->constrained()->onDelete('cascade');
             $table->foreignId('submission_status')->nullable();
             $table->string('validation')->nullable();
             $table->string('link')->nullable();
@@ -22,8 +22,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->boolean('feedback')->nullable();
             $table->text('comment')->nullable();
-            $table->foreignId('verification_status')->nullable();
+            $table->foreignId('validation_status')->nullable();
             $table->text('conclusion')->nullable();
+            $table->text('planning')->nullable();
             $table->timestamps();
         });
     }

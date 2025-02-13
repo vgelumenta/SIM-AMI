@@ -157,7 +157,7 @@ class DocumentController extends Controller
                             $data['competencies'][] = [
                                 'id' => (int) $competencyData['id'],
                                 'standard_id' => (int) $competencyData['standard_id'],
-                                'statement' => $competencyData['statement'],
+                                'name' => $competencyData['name'],
                             ];
 
                             if (isset($competencyData['indicators'])) {
@@ -166,12 +166,11 @@ class DocumentController extends Controller
                                     $data['indicators'][] = [
                                         'id' => (int) $indicatorData['id'],
                                         'competency_id' => (int) $indicatorData['competency_id'],
-                                        'code' => $indicatorData['code'],
                                         'assessment' => $indicatorData['assessment'],
+                                        'code' => $indicatorData['code'],
                                         'entry' => $indicatorData['entry'],
                                         'link_info' => $indicatorData['link_info'],
                                         'rate_option' => $indicatorData['rate_option'] ?? null,
-                                        'disable_text' => $indicatorData['disable_text'] ?? null,
                                     ];
                                 }
                             }
@@ -201,16 +200,15 @@ class DocumentController extends Controller
                 'categories.*.standards.*.competencies' => 'nullable|array',
                 'categories.*.standards.*.competencies.*.id' => 'nullable|integer',
                 'categories.*.standards.*.competencies.*.standard_id' => 'required|string',
-                'categories.*.standards.*.competencies.*.statement' => 'required|string',
+                'categories.*.standards.*.competencies.*.name' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators' => 'nullable|array',
                 'categories.*.standards.*.competencies.*.indicators.*.id' => 'nullable|integer',
                 'categories.*.standards.*.competencies.*.indicators.*.competency_id' => 'required|integer',
-                'categories.*.standards.*.competencies.*.indicators.*.code' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators.*.assessment' => 'required|string',
+                'categories.*.standards.*.competencies.*.indicators.*.code' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators.*.entry' => 'required|string',
                 'categories.*.standards.*.competencies.*.indicators.*.link_info' => 'nullable|string',
                 'categories.*.standards.*.competencies.*.indicators.*.rate_option' => 'nullable|string',
-                'categories.*.standards.*.competencies.*.indicators.*.disable_text' => 'nullable|string',
             ]);
 
             if ($validator->fails()) {
@@ -219,6 +217,7 @@ class DocumentController extends Controller
 
             $document = Document::create([
                 'name' => $document_name,
+                'code' => now()
             ]);
 
             foreach ($categories as $categoryData) {
@@ -238,19 +237,18 @@ class DocumentController extends Controller
                             foreach ($standardData['competencies'] as $competencyData) {
                                 $competency = Competency::create([
                                     'standard_id' => $standard->id,
-                                    'statement' => $competencyData['statement'],
+                                    'name' => $competencyData['name'],
                                 ]);
 
                                 if (isset($competencyData['indicators'])) {
                                     foreach ($competencyData['indicators'] as $indicatorData) {
                                         Indicator::create([
                                             'competency_id' => $competency->id,
-                                            'code' => $indicatorData['code'],
                                             'assessment' => $indicatorData['assessment'],
+                                            'code' => $indicatorData['code'],
                                             'entry' => $indicatorData['entry'],
                                             'link_info' => $indicatorData['link_info'],
                                             'rate_option' => $indicatorData['rate_option'] ?? null,
-                                            'disable_text' => $indicatorData['disable_text'] ?? null,
                                         ]);
                                     }
                                 }

@@ -238,9 +238,9 @@
                                                     <tr>
                                                         <td
                                                             class="border border-blue-800 p-3 dark:border-gray-500 dark:text-white">
-                                                            <textarea x-model="competency.statement" disabled
+                                                            <textarea x-model="competency.name" disabled
                                                                 class="w-full resize-none overflow-hidden border-0 bg-transparent p-0 text-indigo-700 focus:ring-0"
-                                                                style="text-align: justify;" placeholder="Competency Statement">
+                                                                style="text-align: justify;" placeholder="Competency Name">
                                                             </textarea>
                                                         </td>
                                                         <td
@@ -311,35 +311,10 @@
                                                                             </template>
                                                                         </div>
                                                                     </div>
-                                                                    <template x-if="indicator.entry == 'Disable'">
-                                                                        <div x-show="indicator.disable_text"
-                                                                            class="hs-tooltip">
-                                                                            <svg class="size-6 hs-tooltip-toggle cursor-pointer text-gray-500 hover:text-indigo-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500"
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                fill="none" stroke="currentColor"
-                                                                                stroke-width="2"
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round">
-                                                                                <path
-                                                                                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z">
-                                                                                </path>
-                                                                            </svg>
-                                                                            <div style="text-align: justify;"
-                                                                                class="hs-tooltip-content invisible absolute z-10 hidden max-w-xs rounded-lg border border-gray-100 bg-white p-3 text-gray-600 opacity-0 shadow-md transition-opacity hs-tooltip-shown:visible hs-tooltip-shown:opacity-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
-                                                                                <h3 class="font-bold text-indigo-600">
-                                                                                    Indicator Info</h3>
-                                                                                <p class="text-sm"
-                                                                                    x-text="indicator.disable_text">
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </template>
                                                                     <!-- Modal Content -->
                                                                     <template
                                                                         x-if="!indicator.assessment_status | !indicator.description">
                                                                         <button
-                                                                            x-show="
-                                                                            ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
                                                                             type="button"
                                                                             @click="openIndicator(indicator)"
                                                                             class="text-gray-500 hover:text-blue-600 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
@@ -358,8 +333,6 @@
                                                                     <template
                                                                         x-if="indicator.assessment_status && indicator.description">
                                                                         <button @click="openIndicator(indicator)"
-                                                                            x-show="
-                                                                            ['Option', 'Digit', 'Decimal', 'Cost', 'Percentage', 'Rate'].includes(indicator.entry)"
                                                                             type="button"
                                                                             class="text-blue-600 hover:text-blue-700 dark:text-neutral-500 dark:hover:text-blue-500 dark:focus:text-blue-500">
                                                                             <i class="fa-solid fa-check fa-lg"></i>
@@ -752,7 +725,7 @@
                                             @foreach ($standard->groupBy('indicator.competency.id') as $competencyIndex => $indicators)
                                                 {
                                                     id: '{{ $competencyIndex }}',
-                                                    statement: @json($indicators->first()->indicator->competency->statement),
+                                                    name: @json($indicators->first()->indicator->competency->name),
                                                     indicators: [
                                                         @foreach ($indicators as $indicator)
                                                             {
@@ -766,7 +739,6 @@
                                                                 assessment: @json($indicator->indicator->assessment),
                                                                 entry: '{{ $indicator->indicator->entry }}',
                                                                 rate_option: '{{ $indicator->indicator->rate_option }}',
-                                                                disable_text: @json($indicator->indicator->disable_text),
                                                             },
                                                         @endforeach
                                                     ]

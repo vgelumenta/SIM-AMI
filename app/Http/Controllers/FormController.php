@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Log;
+// use Mpdf\Mpdf;
+use Carbon\Carbon;
 use App\Models\Form;
 use App\Models\Unit;
 use App\Models\User;
 use App\Models\Status;
+use GuzzleHttp\Client;
 use App\Models\Category;
 use App\Models\Document;
 use App\Models\FormTime;
@@ -17,11 +21,14 @@ use App\Models\FormAccess;
 use App\Events\FormUpdated;
 use Illuminate\Http\Request;
 use App\Models\FormSubmission;
+use PhpOffice\PhpWord\IOFactory;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use PhpOffice\PhpWord\Element\Chart;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+// use PhpOffice\PhpWord\Writer\PDF\TCPDF;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
@@ -32,6 +39,7 @@ use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
 use PhpOffice\PhpSpreadsheet\Chart\Chart as SpreadsheetChart;
+use id;
 
 class FormController extends Controller
 {
@@ -56,6 +64,56 @@ class FormController extends Controller
                     // })
                 ;
             })->get();
+
+            foreach ($forms as $form) {
+
+                $auditeeAccess = false;
+
+                $auditee = $form->formAccesses->contains(function ($access) {
+                    return $access->user_id === auth()->id() &&
+                        ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+                });
+
+                if ($auditee) {
+                    $auditeeAccess = true;
+                }
+
+                $form->auditeeAccess = $auditeeAccess;
+
+                $auditor = false;
+
+                $auditorAccess = $form->formAccesses->contains(function ($access) {
+                    return $access->user_id === auth()->id() &&
+                        ($access->position === 'Leader' || strpos($access->position, 'Member') !== false);
+                });
+
+                if ($auditorAccess) {
+                    $auditor = true;
+                }
+
+                $form->auditorAccess = $auditorAccess;
+            }
+
+            // $userId = auth()->id();
+            // $userRole = auth()->user()->role; // Asumsi role diambil dari user
+
+            // $forms = Form::with(['formAccesses', 'unit', 'document', 'stage'])
+            //     ->get()
+            //     ->map(function ($form) use ($userId) {
+            //         // Periksa akses Auditee (Pimpinan atau PIC)
+            //         $form->auditeeAccess = $form->formAccesses->contains(function ($access) use ($userId) {
+            //             return $access->user_id === $userId &&
+            //                 ($access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false);
+            //         });
+
+            //         // Periksa akses Auditor (Ketua atau Anggota)
+            //         $form->auditorAccess = $form->formAccesses->contains(function ($access) use ($userId) {
+            //             return $access->user_id === $userId &&
+            //                 ($access->position === 'Ketua' || $access->position === 'Anggota');
+            //         });
+
+            //         return $form;
+            //     });
         }
 
         return view('forms.index', compact('forms'));
@@ -141,9 +199,9 @@ class FormController extends Controller
                     ] // Buat user baru dengan nama ini
                 );
 
-                if (in_array($position, ['Pimpinan']) || strpos($position, 'PIC') !== false) {
+                if (in_array($position, ['Chief']) || strpos($position, 'PIC') !== false) {
                     $user->assignRole('Auditee');
-                } elseif (in_array($position, ['Ketua']) || strpos($position, 'Anggota') !== false) {
+                } elseif (in_array($position, ['Leader']) || strpos($position, 'Member') !== false) {
                     $user->assignRole('Auditor');
                 }
 
@@ -180,15 +238,15 @@ class FormController extends Controller
         }
 
         $auditees = $formAccesses->filter(function ($access) {
-            return $access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false;
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
         })->sortBy(function ($access) {
-            return $access->position === 'Pimpinan' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
         });
 
         $auditors = $formAccesses->filter(function ($access) {
-            return $access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false;
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
         })->sortBy(function ($access) {
-            return $access->position === 'Ketua' ? 0 : (intval(str_replace('Anggota', '', $access->position)) ?: 1);
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
         });
 
         $formAudits = FormAudit::with([
@@ -201,9 +259,7 @@ class FormController extends Controller
 
         $statuses = Status::orderBy('id', 'desc')->get();
 
-        $skip = true;
-
-        return view('forms.show', compact('form', 'auditees', 'auditors', 'grouped', 'statuses', 'skip'));
+        return view('forms.show', compact('form', 'auditees', 'auditors', 'grouped', 'statuses'));
     }
 
     /**
@@ -262,6 +318,1083 @@ class FormController extends Controller
         Form::destroy($form->id);
 
         return redirect('/forms')->with('status', 'Form berhasil dihapus.');
+    }
+
+    public function editSubmission(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 1 || app('user_role') !== 'Auditee') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $submitAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() && $access->position === 'Chief';
+        });
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->get();
+
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        $statuses = Status::orderBy('id', 'desc')->get();
+
+        return view('forms.edit-submission', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
+    }
+
+    public function updateSubmission(Request $request, Form $form)
+    {
+        if ($request->input('action') === 'submit') {
+
+            $indicators = $request->input('indicators');
+
+            foreach ($indicators as $indicator) {
+                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
+
+                $code = $indicator['code'];
+
+                Validator::make($indicator, [
+                    "id" => 'required|integer|exists:form_audits,id',
+                    "submission_status" => 'required|integer|exists:statuses,id',
+                    "validation" => 'required|string',
+                    "link" => 'required|string',
+                ])->setAttributeNames([
+                    "submission_status" => "Audit {$code}",
+                    "validation" => "Validation {$code}",
+                    "link" => "Link {$code}",
+                ])->validate();
+            }
+
+            FormTime::updateOrCreate(
+                ['form_id' => $form->id],
+                ['submission_time' => now()]
+            );
+
+            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 2]
+            );
+
+            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} submitted successfully.");
+        } else {
+
+            $indicator = $request->input('indicator');
+
+            // Update the FormAudit entry based on the provided indicator data
+            FormAudit::updateOrCreate(
+                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                [
+                    'submission_status' => $indicator['submission_status'],
+                    'validation' => $indicator['validation'],
+                    'link' => $indicator['link'],
+                ]
+            );
+
+            // Dispatch the event for the updated indicator
+            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
+
+            return response()->json(['message' => "{$indicator['code']} updated successfully."]);
+        }
+    }
+
+    public function editAssessment(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Leader' || strpos($access->position, 'Member') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 2 || app('user_role') !== 'Auditor') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $submitAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() && $access->position === 'Leader';
+        });
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->get();
+
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        $statuses = Status::orderBy('id', 'desc')->get();
+
+        return view('forms.edit-assessment', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
+    }
+
+    public function updateAssessment(Request $request, Form $form)
+    {
+        if ($request->input('action') === 'submit') {
+
+            $indicators = $request->input('indicators');
+
+            foreach ($indicators as $indicator) {
+                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
+
+                $code = $indicator['code'];
+
+                Validator::make($indicator, [
+                    "id" => 'required|integer|exists:form_audits,id',
+                    "assessment_status" => 'required|integer|exists:statuses,id',
+                    "description" => 'nullable|string',
+                ])->setAttributeNames([
+                    "assessment_status" => "Audit {$code}",
+                    "description" => "Description {$code}",
+                ])->validate();
+            }
+
+            FormTime::updateOrCreate(
+                ['form_id' => $form->id],
+                ['assessment_time' => now()]
+            );
+
+            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 3]
+            );
+
+            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} submitted successfully.");
+        } else {
+
+            $indicator = $request->input('indicator');
+
+            // Update the FormAudit entry based on the provided indicator data
+            FormAudit::updateOrCreate(
+                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                [
+                    'assessment_status' => $indicator['assessment_status'],
+                    'description' => $indicator['description'],
+                ]
+            );
+
+            // Dispatch the event for the updated indicator
+            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
+
+            return response()->json(['message' => "{$indicator['code']} updated successfully."]);
+        }
+    }
+
+    public function editFeedback(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 3 || app('user_role') !== 'Auditee') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $submitAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() && $access->position === 'Chief';
+        });
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->get();
+
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        $statuses = Status::orderBy('id', 'desc')->get();
+
+        return view('forms.edit-feedback', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
+    }
+
+    public function updateFeedback(Request $request, Form $form)
+    {
+        if ($request->input('action') === 'submit') {
+
+            $indicators = $request->input('indicators');
+
+            foreach ($indicators as $indicator) {
+                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
+
+                $indicator['feedback'] = $indicator['feedback'] === "" ? 1 : $indicator['feedback'];
+                $code = $indicator['code'];
+
+                Validator::make($indicator, [
+                    "id" => 'required|integer|exists:form_audits,id',
+                    "validation" => 'required|string',
+                    "link" => 'required|string',
+                    "feedback" => 'required|integer',
+                    "comment" => 'nullable|string',
+                ])->setAttributeNames([
+                    "validation" => "Validation {$code}",
+                    "link" => "Link {$code}",
+                    "feedback" => "Feedback {$code}",
+                    "comment" => "Comment {$code}",
+                ])->validate();
+
+                FormAudit::updateOrCreate(
+                    ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                    [
+                        'feedback' => $indicator['feedback'],
+                    ]
+                );
+            }
+
+            FormTime::updateOrCreate(
+                ['form_id' => $form->id],
+                ['feedback_time' => now()]
+            );
+
+            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 4]
+            );
+
+            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} submitted successfully.");
+        } else {
+
+            $indicator = $request->input('indicator');
+
+            // Update the FormAudit entry based on the provided indicator data
+            FormAudit::updateOrCreate(
+                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                [
+                    'validation' => $indicator['validation'],
+                    'link' => $indicator['link'],
+                    'feedback' => $indicator['feedback'],
+                    'comment' => $indicator['comment'],
+                ]
+            );
+
+            // Dispatch the event for the updated indicator
+            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
+
+            return response()->json(['message' => "{$indicator['code']} updated successfully."]);
+        }
+    }
+
+    public function editValidation(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Leader' || strpos($access->position, 'Member') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 4 || app('user_role') !== 'Auditor') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $submitAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() && $access->position === 'Leader';
+        });
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->get();
+
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        // $statuses = Status::orderBy('id', 'desc')->get();
+
+        $statuses = Status::whereIn('id', [2, 3])->orderBy('id', 'desc')->get();
+
+        return view('forms.edit-validation', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
+    }
+
+    public function updateValidation(Request $request, Form $form)
+    {
+        if ($request->input('action') === 'submit') {
+
+            $indicators = $request->input('indicators');
+
+            foreach ($indicators as $indicator) {
+                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
+
+                $code = $indicator['code'];
+
+                Validator::make($indicator, [
+                    "id" => 'required|integer|exists:form_audits,id',
+                    "validation_status" => 'required|integer|exists:statuses,id',
+                    "conclusion" => 'required|string',
+                ])->setAttributeNames([
+                    "validation_status" => "Audit {$code}",
+                    "conclusion" => "Conclusion {$code}",
+                ])->validate();
+            }
+
+            FormTime::updateOrCreate(
+                ['form_id' => $form->id],
+                ['validation_time' => now()]
+            );
+
+            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 5]
+            );
+
+            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} submitted successfully.");
+        } else {
+
+            $indicator = $request->input('indicator');
+
+            // Update the FormAudit entry based on the provided indicator data
+            FormAudit::updateOrCreate(
+                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                [
+                    'validation_status' => $indicator['validation_status'],
+                    'conclusion' => $indicator['conclusion'],
+                ]
+            );
+
+            // Dispatch the event for the updated indicator
+            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
+
+            return response()->json(['message' => "{$indicator['code']} updated successfully."]);
+        }
+    }
+
+    public function editMeeting(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 5 || app('user_role') !== 'Auditee') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        return view('forms.edit-meeting', compact('form', 'auditees', 'auditors'));
+    }
+
+    public function updateMeeting(Request $request, Form $form)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf|max:5120', // Validasi file
+            'time' => 'required|date',
+        ]);
+
+        // Cari data berdasarkan ID
+        $form = Form::findOrFail($form->id);
+
+        // Update field `document` jika ada file baru
+        if ($request->hasFile('document')) {
+            // Hapus file lama jika ada
+            if ($form->meeting) {
+                Storage::delete('public/' . $form->meeting);
+            }
+
+            // Simpan file baru
+            $filePath = $request->file('document')->store('meeting', 'public');
+        }
+
+        $form->update([
+            'meeting' => $filePath,
+            'meeting_time' => $request->input('time'),
+            'meeting_verification' => null, // Reset verifikasi
+            'verification_info' => null, // Reset verifikasi
+        ]);
+
+        // Update field `date`
+
+        FormTime::updateOrCreate(
+            ['form_id' => $form->id],
+            ['meeting_time' => now()]
+        );
+
+        return redirect('/forms')->with('success', 'Evidence submitted successfully.');
+    }
+
+    public function editMeetingVerification(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        if ($form->stage_id !== 5 || !$form->meeting || app('user_role') !== 'PJM') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        return view('forms.edit-meeting-verification', compact('form', 'auditees', 'auditors'));
+    }
+
+    public function updateMeetingVerification(Request $request, Form $form)
+    {
+        // Cari data berdasarkan ID
+        $form = Form::findOrFail($form->id);
+
+        // Update field `date`
+        if ($request->input('action') === 'accept') {
+
+            $form->update([
+                'meeting_verification' => true,
+                'verification_info' => null,
+            ]);
+
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 6]
+            );
+        } else if ($request->input('action') === 'decline') {
+
+            $request->validate([
+                'verification_info' => 'required|string|max:255',
+            ]);
+
+            $form->update([
+                'meeting_verification' => false,
+                'verification_info' => $request->input('verification_info'),
+            ]);
+        }
+
+        // Simpan perubahan
+        $form->save();
+
+        return redirect('/forms')->with('success', 'Verification submitted successfully.');
+    }
+
+    public function editPlanning(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 6 || app('user_role') !== 'Auditee') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $submitAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() && $access->position === 'Chief';
+        });
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->whereIn('validation_status', [1, 2])->get();
+
+
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        $statuses = Status::orderBy('id', 'desc')->get();
+
+        return view('forms.edit-planning', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
+    }
+
+    public function updatePlanning(Request $request, Form $form)
+    {
+        if ($request->input('action') === 'submit') {
+
+            $indicators = $request->input('indicators');
+
+            foreach ($indicators as $indicator) {
+                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
+
+                $code = $indicator['code'];
+
+                Validator::make($indicator, [
+                    "id" => 'required|integer|exists:form_audits,id',
+                    "planning" => 'required|string',
+                ])->setAttributeNames([
+                    "planning" => "Plan {$code}",
+                ])->validate();
+            }
+
+            FormTime::updateOrCreate(
+                ['form_id' => $form->id],
+                ['planning_time' => now()]
+            );
+
+            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 7]
+            );
+
+            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} successfully submitted.");
+        } else {
+
+            $indicator = $request->input('indicator');
+
+            // Update the FormAudit entry based on the provided indicator data
+            FormAudit::updateOrCreate(
+                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
+                [
+                    'planning' => $indicator['planning'],
+                ]
+            );
+
+            // Dispatch the event for the updated indicator
+            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
+
+            return response()->json(['message' => "{$indicator['code']} successfully updated."]);
+        }
+    }
+
+    public function editSigning(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        $editAccess = $formAccesses->contains(function ($access) {
+            return $access->user_id === auth()->id() &&
+                ($access->position === 'Chief' || strpos($access->position, 'PIC') !== false);
+        });
+
+        if (!$editAccess || $form->stage_id !== 7 || app('user_role') !== 'Auditee') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        return view('forms.edit-signing', compact('form', 'auditees', 'auditors'));
+    }
+
+    public function updateSigning(Request $request, Form $form)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf|max:5120',
+        ]);
+
+        // Cari data berdasarkan ID
+        $form = Form::findOrFail($form->id);
+
+        // Update field `document` jika ada file baru
+        if ($request->hasFile('document')) {
+            // Hapus file lama jika ada
+            if ($form->signing) {
+                Storage::delete('public/' . $form->signing);
+            }
+
+            // Simpan file baru
+            $filePath = $request->file('document')->store('signing', 'public');
+        }
+
+        $form->update([
+            'signing' => $filePath,
+            'signing_verification' => null, // Reset verifikasi
+            'verification_info' => null, // Reset verifikasi
+        ]);
+
+        // Update field `date`
+        FormTime::updateOrCreate(
+            ['form_id' => $form->id],
+            ['signing_time' => now()]
+        );
+
+        return redirect('/forms')->with('success', 'Signed submitted successfully.');
+    }
+
+    public function editSigningVerification(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        if ($form->stage_id !== 7 || !$form->signing || app('user_role') !== 'PJM') {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        return view('forms.edit-signing-verification0', compact('form', 'auditees', 'auditors'));
+    }
+
+    public function updateSigningVerification(Request $request, Form $form)
+    {
+        // Cari data berdasarkan ID
+        $form = Form::findOrFail($form->id);
+
+        // Update field `date`
+        if ($request->input('action') === 'accept') {
+
+            $form->update([
+                'signing_verification' => true,
+                'verification_info' => null,
+            ]);
+
+            Form::updateOrCreate(
+                ['id' => $form->id],
+                ['stage_id' => 8]
+            );
+        } else if ($request->input('action') === 'decline') {
+
+            $request->validate([
+                'verification_info' => 'required|string|max:255',
+            ]);
+
+            $form->update([
+                'signing_verification' => false,
+                'verification_info' => $request->input('verification_info'),
+            ]);
+        }
+
+        // Simpan perubahan
+        $form->save();
+
+        return redirect('/forms')->with('success', 'Verification submitted successfully.');
+    }
+
+    public function showReport(Form $form)
+    {
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        if ($form->stage_id !== 8) {
+            abort(403, "The form is currently {$form->stage->name} Stage.");
+        }
+
+        $auditees = $formAccesses->filter(function ($access) {
+            return $access->position === 'Chief' || strpos($access->position, 'PIC') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        });
+
+        $auditors = $formAccesses->filter(function ($access) {
+            return $access->position === 'Leader' || strpos($access->position, 'Member') !== false;
+        })->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        });
+
+        return view('forms.show-report', compact('form', 'auditees', 'auditors'));
+    }
+
+    public function export(Form $form)
+    {
+        $formAudits = FormAudit::with([
+            'indicator.competency.standard.category'
+        ])->where('form_id', $form->id)->get();
+
+        // Load template
+        $templateProcessor = new TemplateProcessor('templates/AMI Report.docx');
+
+        // Header
+        // Set nilai untuk unit
+        $document_code = $form->document->code;
+        $templateProcessor->setValue('document_code', $document_code);
+        $unit = strtoupper($form->unit->name);
+        $templateProcessor->setValue('unit', $unit);
+
+        // Ambil akses formulir
+        $formAccesses = FormAccess::where('form_id', $form->id)->get();
+
+        // A
+
+        $translations = [
+            'Chief' => 'Pimpinan',
+            'PIC' => 'Penanggungjawab',
+            'Leader' => 'Ketua',
+            'Member' => 'Anggota',
+        ];
+
+        // Filter dan transformasi data untuk auditees
+        $auditeesData = $formAccesses->filter(
+            fn($access) =>
+            in_array($access->position, ['Chief', 'PIC']) || strpos($access->position, 'PIC') !== false
+        )->sortBy(function ($access) {
+            return $access->position === 'Chief' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
+        })->map(fn($auditee) => [
+            'auditee_position' => str_replace(array_keys($translations), array_values($translations), $auditee->position),
+            'auditee_name' => $auditee->user->name ?? '',
+            'auditee_contact' => $auditee->user->contact,
+        ])->values();
+
+        // Filter dan transformasi data untuk auditors
+        $auditorsData = $formAccesses->filter(
+            fn($access) =>
+            in_array($access->position, ['Leader', 'Member']) || strpos($access->position, 'Member') !== false
+        )->sortBy(function ($access) {
+            return $access->position === 'Leader' ? 0 : (intval(str_replace('Member', '', $access->position)) ?: 1);
+        })->map(fn($auditor) => [
+            'auditor_position' => str_replace(array_keys($translations), array_values($translations), $auditor->position),
+            'auditor_name' => $auditor->user->name ?? '',
+            'auditor_contact' => $auditor->user->contact,
+        ])->values();
+
+        // Gabungkan data auditees dan auditors sebagai template
+        $combinedData = collect(range(0, max($auditeesData->count(), $auditorsData->count()) - 1))
+            ->map(fn($i) => [
+                'auditee_position' => $auditeesData[$i]['auditee_position'] ?? '',
+                'auditee_name' => $auditeesData[$i]['auditee_name'] ?? '',
+                'auditee_contact' => $auditeesData[$i]['auditee_contact'] ?? '',
+                'auditor_position' => $auditorsData[$i]['auditor_position'] ?? '',
+                'auditor_name' => $auditorsData[$i]['auditor_name'] ?? '',
+                'auditor_contact' => $auditorsData[$i]['auditor_contact'] ?? '',
+            ])
+            ->toArray();
+
+        // Clone rows dan set nilai
+        $templateProcessor->cloneRowAndSetValues('auditee_position', $combinedData);
+
+        // B
+
+        // Transformasi nilai dan hitung rata-rata
+        $average = $formAudits->map(function ($audit) {
+            return match ($audit->validation_status) {
+                1 => 0,
+                2 => 1,
+                3 => 2,
+                4 => 3,
+                default => 0, // Jaga-jaga jika ada nilai selain 1-4
+            };
+        })->average();
+
+        $achievements = round(($average / 3 * 100), 2);
+        $templateProcessor->setValue('achievements', $achievements . ' %');
+
+        $findings = FormAudit::where('form_id', $form->id)->whereIn('validation_status', [1, 2])->count();
+        $templateProcessor->setValue('findings', $findings);
+
+        // Grupkan FormAudit berdasarkan kategori
+        $grouped = $formAudits->groupBy(function ($item) {
+            return $item->indicator?->competency?->standard?->category?->id ?? null;
+        });
+
+        $results = [];
+        $counter = 1;
+
+        // Iterasi setiap kategori
+        foreach ($grouped as $categoryId => $category) {
+            // $totalCompetencies = 0;
+            // $passedCompetencies = 0;
+
+            $totalStandards = 0;
+            $passedStandards = 0;
+
+            // Grup berdasarkan standar
+            foreach ($category->groupBy('indicator.competency.standard.id') as $standardId => $standard) {
+                // $totalCompetencies++;
+
+                $totalStandards++;
+
+                // Periksa apakah semua kompetensi dalam standar ini lulus
+                $allCompetenciesPassed = true;
+
+                foreach ($standard->groupBy('indicator.competency.id') as $competencyId => $indicators) {
+                    // Periksa apakah semua indikator dalam kompetensi ini memiliki validation_status > 3
+                    $competencyPassed = $indicators->every(function ($indicator) {
+                        return $indicator->validation_status >= 3;
+                    });
+
+                    // if ($competencyPassed) {
+                    //     $passedCompetencies++;
+                    // }
+
+                    if (!$competencyPassed) {
+                        $allCompetenciesPassed = false;
+                        break;
+                    }
+                }
+
+                if ($allCompetenciesPassed) {
+                    $passedStandards++;
+                }
+            }
+
+            // Hitung persentase kelulusan
+            $results[] = [
+                'counter' => $counter++,
+                'recap' => $category->first()->indicator->competency->standard->category->name,
+                // 'percentage' => $passedCompetencies / $totalCompetencies * 100 . ' %',
+                'percentage' => $passedStandards / $totalStandards * 100 . ' %',
+            ];
+        }
+
+        $templateProcessor->cloneRowAndSetValues('recap', $results);
+
+        // C
+        $formTime = FormTime::where('form_id', $form->id)->firstOrFail();
+
+        $templateProcessor->setValue('submission_time', Carbon::parse($formTime->submission_time)->translatedFormat('d F Y H:i'));
+        if ($formTime->submission_time <= $formTime->submission_deadline) {
+            $templateProcessor->setValue('submission_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('submission_info', 'Terlambat');
+        }
+
+        $templateProcessor->setValue('assessment_time', Carbon::parse($formTime->assessment_time)->translatedFormat('d F Y H:i'));
+        if ($formTime->assessment_time <= $formTime->assessment_deadline) {
+            $templateProcessor->setValue('assessment_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('assessment_info', 'Terlambat');
+        }
+
+        $templateProcessor->setValue('feedback_time', Carbon::parse($formTime->feedback_time)->translatedFormat('d F Y H:i'));
+        if ($formTime->feedback_time <= $formTime->feedback_deadline) {
+            $templateProcessor->setValue('feedback_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('feedback_info', 'Terlambat');
+        }
+
+        $templateProcessor->setValue('validation_time', Carbon::parse($formTime->validation_time)->translatedFormat('d F Y H:i'));
+        if ($formTime->validation_time <= $formTime->validation_deadline) {
+            $templateProcessor->setValue('validation_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('validation_info', 'Terlambat');
+        }
+
+        $templateProcessor->setValue('meeting_time', Carbon::parse($form->meeting_time)->translatedFormat('d F Y H:i'));
+        if ($form->meeting_time <= $formTime->meeting_deadline) {
+            $templateProcessor->setValue('meeting_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('meeting_info', 'Terlambat');
+        }
+
+        $templateProcessor->setValue('planning_time', Carbon::parse($formTime->planning_time)->translatedFormat('d F Y H:i'));
+        if ($formTime->planning_time <= $formTime->planning_deadline) {
+            $templateProcessor->setValue('planning_info', 'Tepat Waktu');
+        } else {
+            $templateProcessor->setValue('planning_info', 'Terlambat');
+        }
+
+        // D
+        $filteredFormAudits = $formAudits->whereIn('validation_status', [1, 2]);
+        $grouped = $filteredFormAudits->groupBy(fn($item) => $item->indicator->competency->standard->category->id);
+        // dd($grouped);
+
+        $rows = [];
+
+        foreach ($grouped as $formAuditsGroup) {
+            $category = $formAuditsGroup->first()->indicator->competency->standard->category;
+
+            foreach ($formAuditsGroup as $audit) {
+                $rows[] = [
+                    'category' => $category->name ?? '',
+                    'indicator_code' => $audit->indicator->code ?? '',
+                    'indicator_assessment' => $audit->indicator->assessment ?? '',
+                    'planning' => $audit->planning ?? '',
+                ];
+
+                // Tambahkan baris kosong untuk kompetensi selain pada baris pertama
+                $category->name = '';
+            }
+        }
+
+        $templateProcessor->cloneRowAndSetValues('category', $rows);
+
+        // E
+        $competencies = Competency::whereHas('indicators.formAudits', function ($query) use ($form) {
+            $query->where('form_id', $form->id);
+        })
+            ->with(['standard.category', 'indicators.formAudits'])  // Pastikan eager load 'formAudits' pada indikator
+            ->get();
+
+        $data = [];
+        $printedCategories = []; // Melacak kategori yang sudah dicetak
+
+        foreach ($competencies as $competency) {
+            // Ambil kategori melalui relasi standard
+            $categoryName = $competency->standard->category->name ?? '';
+
+            // Loop melalui setiap indikator pada kompetensi
+            $competencyPassed = $competency->indicators->every(function ($indicator) use ($form) {
+                // Pastikan kita memeriksa 'validation_status' dari 'formAudits'
+                // Mengambil semua formAudit yang terkait dengan indikator dan memeriksa status validasi
+                $validationStatuses = $indicator->formAudits->where('form_id', $form->id)->pluck('validation_status')->toArray();
+
+                // Memastikan semua formAudit memiliki validation_status >= 3
+                return collect($validationStatuses)->every(function ($status) {
+                    return $status >= 3;
+                });
+            });
+
+            // Tentukan status berdasarkan kompetensi
+            $status = $competencyPassed ? 'Memenuhi' : 'Tidak memenuhi';
+
+            // Tambahkan data dengan nama kategori hanya jika belum dicetak sebelumnya
+            $data[] = [
+                'category' => in_array($categoryName, $printedCategories) ? '' : $categoryName,
+                'competency' => $competency->name ?? '',
+                'status' => $status,
+            ];
+
+            // Tandai kategori sebagai sudah dicetak
+            $printedCategories[] = $categoryName;
+        }
+
+        // Clone row and set values
+        $templateProcessor->cloneRowAndSetValues('competency', $data);
+
+        // F
+        // Set nilai tanggal cetak
+        $today = Carbon::now()->translatedFormat('d F Y');
+        $templateProcessor->setValue('today', $today);
+
+        // Set nilai untuk Pimpinan Auditee
+        $chief = $formAccesses->firstWhere('position', 'Chief');
+
+        $templateProcessor->setValue('chief_name', $chief->user->name);
+        $templateProcessor->setValue('chief_username', $chief->user->username);
+
+        // Set nilai untuk Ketua Auditor
+        $leader = $formAccesses->firstWhere('position', 'Leader');
+
+        $templateProcessor->setValue('leader_name', $leader->user->name);
+        $templateProcessor->setValue('leader_username', $leader->user->username);
+
+        // // $categories = array('A', 'B', 'C', 'D');
+        // // $series1 = array(1, 3, 2, 5);
+        // // $chart = new Chart('pie', $categories, $series1);
+
+        // // // Atur ukuran chart
+        // // $chart->setWidth(600); // Lebar chart dalam piksel
+        // // $chart->setHeight(400); // Tinggi chart dalam piksel
+        // // $templateProcessor->setChart('chart', $chart);
+
+        // $chartPath = $this->generateChartImageGD();
+        // $chartPath = $this->generatePieChartImage();
+        // $chartPath = $this->generateChartImage();
+
+        // // Replace Placeholder with Chart Image
+        // $templateProcessor->setImageValue('chart_placeholder', [
+        //     'path' => $chartPath,
+        //     'width' => 600,  // Set width (pixels)
+        //     'height' => 400, // Set height (pixels)
+        // ]);
+
+        // Simpan file sementara
+        $fileName = "Laporan AMI {$form->unit->code}";
+        $wordPath = storage_path("app/public/{$fileName}.docx");
+        $templateProcessor->saveAs($wordPath);
+
+        // Path lengkap LibreOffice Windows
+        $libreOfficePath = '"C:\Program Files\LibreOffice\program\soffice.exe"';
+
+        // Windows
+        // $command = "{$libreOfficePath} --headless --convert-to pdf --outdir " . storage_path('app/public') . " " . escapeshellarg($wordPath);
+        
+        // Server
+        $command = "libreoffice --headless --convert-to pdf --outdir " . storage_path('app/public') . " " . escapeshellarg($wordPath);
+
+        shell_exec($command);
+
+        unlink($wordPath);
+
+        $pdfPath = storage_path("app/public/{$fileName}.pdf");
+
+        // Unduh file PDF
+        return response()->download($pdfPath)->deleteFileAfterSend(true);
     }
 
     public function export0(Form $form)
@@ -556,7 +1689,7 @@ class FormController extends Controller
             foreach ($formAuditsGroup as $audit) {
                 $competencyIndicators[] = [
                     $indicatorPlaceholder => $audit->indicator->code ?? '',
-                    'verification_status' => $audit->verification_status ?? '',
+                    'validation_status' => $audit->validation_status ?? '',
                 ];
             }
 
@@ -566,110 +1699,6 @@ class FormController extends Controller
 
             // dd($indicatorPlaceholder);
         }
-
-        // Simpan file sementara
-        $fileName = "Laporan AMI {$form->unit->code}.docx";
-        $tempFilePath = storage_path("app/{$fileName}");
-        $templateProcessor->saveAs($tempFilePath);
-
-        // Kirim file sebagai respons
-        return response()->download($tempFilePath)->deleteFileAfterSend(true);
-    }
-
-    public function export(Form $form)
-    {
-        // Load template
-        $templateProcessor = new TemplateProcessor('Laporan AMI.docx');
-
-        // Set nilai untuk unit
-        $unit = $form->unit->name;
-        $templateProcessor->setValue('unit', $unit);
-
-        $formAudits = FormAudit::with([
-            'indicator.competency'
-        ])->where('form_id', $form->id)->get();
-
-        // Kelompokkan data berdasarkan ID kategori, standar, kompetensi, dan indikator
-        $grouped = $formAudits->groupBy(fn($item) => $item->indicator->competency->id);
-
-        // Transformasi data untuk template
-        $rows = [];
-        $counter = 1;
-
-        foreach ($grouped as $competencyId => $formAuditsGroup) {
-            $competency = $formAuditsGroup->first()->indicator->competency;
-
-            foreach ($formAuditsGroup as $audit) {
-                $rows[] = [
-                    'i' => $counter++, // Nomor urut
-                    'competency_statement' => $competency->statement ?? '',
-                    'indicator_code' => $audit->indicator->code ?? '',
-                    'verification_status' => $audit->verification_status ?? '',
-                ];
-
-                // Tambahkan baris kosong untuk kompetensi selain pada baris pertama
-                $competency->statement = '';
-            }
-        }
-
-        // Clone rows dan isi data
-        $templateProcessor->cloneRowAndSetValues('competency_statement', $rows);
-
-        $formAccesses = FormAccess::where('form_id', $form->id)->get();
-
-        // Filter dan transformasi data untuk auditees dan auditors
-        $auditeesData = $formAccesses->filter(
-            fn($access) =>
-            in_array($access->position, ['Pimpinan', 'PIC']) || strpos($access->position, 'PIC') !== false
-        )->map(fn($auditee) => [
-            'auditee_position' => $auditee->position,
-            'auditee_name' => $auditee->user->name ?? '',
-            'auditee_contact' => $auditee->user->contact,
-        ])->values();
-
-        $auditorsData = $formAccesses->filter(
-            fn($access) =>
-            in_array($access->position, ['Ketua', 'Anggota']) || strpos($access->position, 'Anggota') !== false
-        )->map(fn($auditor) => [
-            'auditor_position' => $auditor->position,
-            'auditor_name' => $auditor->user->name ?? '',
-            'auditor_contact' => $auditor->user->contact,
-        ])->values();
-
-        // Gabungkan data auditees dan auditors sebagai template
-        $combinedData = collect(range(0, max($auditeesData->count(), $auditorsData->count()) - 1))
-            ->map(fn($i) => [
-                'auditee_position' => $auditeesData[$i]['auditee_position'] ?? '',
-                'auditee_name' => $auditeesData[$i]['auditee_name'] ?? '',
-                'auditee_contact' => $auditeesData[$i]['auditee_contact'] ?? '',
-                'auditor_position' => $auditorsData[$i]['auditor_position'] ?? '',
-                'auditor_name' => $auditorsData[$i]['auditor_name'] ?? '',
-                'auditor_contact' => $auditorsData[$i]['auditor_contact'] ?? '',
-            ])
-            ->toArray();
-
-        // Clone rows dan set nilai
-        $templateProcessor->cloneRowAndSetValues('auditee_position', $combinedData);
-
-        $categories = array('A', 'B', 'C', 'D');
-        $series1 = array(1, 3, 2, 5);
-        $chart = new Chart('pie', $categories, $series1);
-
-        // Atur ukuran chart
-        // $chart->setWidth(600); // Lebar chart dalam piksel
-        // $chart->setHeight(400); // Tinggi chart dalam piksel
-        $templateProcessor->setChart('chart', $chart);
-
-        // $chartPath = $this->generateChartImageGD();
-        // $chartPath = $this->generatePieChartImage();
-        // $chartPath = $this->generateChartImage();
-
-        // 3. Replace Placeholder with Chart Image
-        // $templateProcessor->setImageValue('chart_placeholder', [
-        //     'path' => $chartPath,
-        //     'width' => 600,  // Set width (pixels)
-        //     'height' => 400, // Set height (pixels)
-        // ]);
 
         // Simpan file sementara
         $fileName = "Laporan AMI {$form->unit->code}.docx";
@@ -842,402 +1871,5 @@ class FormController extends Controller
         imagedestroy($image);       // Hapus dari memory
 
         return $tempPng; // Return path ke file PNG
-    }
-
-    public function editSubmission(Form $form)
-    {
-        $formAccesses = FormAccess::where('form_id', $form->id)->get();
-
-        $editAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() &&
-                ($access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false);
-        });
-
-        if (!$editAccess || $form->stage_id !== 1 || app('user_role') !== 'Auditee') {
-            abort(403);
-        }
-
-        $submitAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() && $access->position === 'Pimpinan';
-        });
-
-        $auditees = $formAccesses->filter(function ($access) {
-            return $access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Pimpinan' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
-        });
-
-        $auditors = $formAccesses->filter(function ($access) {
-            return $access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Ketua' ? 0 : (intval(str_replace('Anggota', '', $access->position)) ?: 1);
-        });
-
-        $formAudits = FormAudit::with([
-            'indicator.competency.standard.category'
-        ])->where('form_id', $form->id)->get();
-
-        $grouped = $formAudits->groupBy(function ($item) {
-            return $item->indicator?->competency?->standard?->category?->id ?? null;
-        });
-
-        $statuses = Status::orderBy('id', 'desc')->get();
-
-        return view('forms.edit-submission', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
-    }
-
-    public function updateSubmission(Request $request, Form $form)
-    {
-        if ($request->input('action') === 'submit') {
-
-            $indicators = $request->input('indicators');
-
-            foreach ($indicators as $indicator) {
-                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
-
-                $code = $indicator['code'];
-
-                Validator::make($indicator, [
-                    "id" => 'required|integer|exists:form_audits,id',
-                    "submission_status" => 'exclude_if:entry,Disable|required|integer|exists:statuses,id',
-                    "validation" => 'exclude_if:entry,Disable|required|string',
-                    "link" => 'exclude_if:entry,Disable|required|string',
-                ])->setAttributeNames([
-                    "submission_status" => "Audit {$code}",
-                    "validation" => "Validation {$code}",
-                    "link" => "Link {$code}",
-                ])->validate();
-            }
-
-            FormTime::updateOrCreate(
-                ['form_id' => $form->id],
-                ['submission_time' => now()]
-            );
-
-            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
-            Form::updateOrCreate(
-                ['id' => $form->id],
-                ['stage_id' => 2]
-            );
-
-            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} successfully submitted.");
-        } else {
-
-            $indicator = $request->input('indicator');
-
-            // Update the FormAudit entry based on the provided indicator data
-            FormAudit::updateOrCreate(
-                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
-                [
-                    'submission_status' => $indicator['submission_status'],
-                    'validation' => $indicator['validation'],
-                    'link' => $indicator['link'],
-                ]
-            );
-
-            // Dispatch the event for the updated indicator
-            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
-
-            return response()->json(['message' => "{$indicator['code']} successfully updated."]);
-        }
-    }
-
-    public function editAssessment(Form $form)
-    {
-        $formAccesses = FormAccess::where('form_id', $form->id)->get();
-
-        $editAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() &&
-                ($access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false);
-        });
-
-        if (!$editAccess || $form->stage_id !== 2 || app('user_role') !== 'Auditor') {
-            abort(403);
-        }
-
-        $submitAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() && $access->position === 'Ketua';
-        });
-
-        $auditees = $formAccesses->filter(function ($access) {
-            return $access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Pimpinan' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
-        });
-
-        $auditors = $formAccesses->filter(function ($access) {
-            return $access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Ketua' ? 0 : (intval(str_replace('Anggota', '', $access->position)) ?: 1);
-        });
-
-        $formAudits = FormAudit::with([
-            'indicator.competency.standard.category'
-        ])->where('form_id', $form->id)->get();
-
-        $grouped = $formAudits->groupBy(function ($item) {
-            return $item->indicator?->competency?->standard?->category?->id ?? null;
-        });
-
-        $statuses = Status::orderBy('id', 'desc')->get();
-
-        return view('forms.edit-assessment', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
-    }
-
-    public function updateAssessment(Request $request, Form $form)
-    {
-        if ($request->input('action') === 'submit') {
-
-            $indicators = $request->input('indicators');
-
-            foreach ($indicators as $indicator) {
-                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
-
-                $code = $indicator['code'];
-
-                Validator::make($indicator, [
-                    "id" => 'required|integer|exists:form_audits,id',
-                    "assessment_status" => 'exclude_if:entry,Disable|required|integer|exists:statuses,id',
-                    "description" => 'exclude_if:entry,Disable|nullable|string',
-                ])->setAttributeNames([
-                    "assessment_status" => "Audit {$code}",
-                    "description" => "Description {$code}",
-                ])->validate();
-            }
-
-            FormTime::updateOrCreate(
-                ['form_id' => $form->id],
-                ['assessment_time' => now()]
-            );
-
-            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
-            Form::updateOrCreate(
-                ['id' => $form->id],
-                ['stage_id' => 3]
-            );
-
-            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} successfully submitted.");
-        } else {
-
-            $indicator = $request->input('indicator');
-
-            // Update the FormAudit entry based on the provided indicator data
-            FormAudit::updateOrCreate(
-                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
-                [
-                    'assessment_status' => $indicator['assessment_status'],
-                    'description' => $indicator['description'],
-                ]
-            );
-
-            // Dispatch the event for the updated indicator
-            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
-
-            return response()->json(['message' => "{$indicator['code']} successfully updated."]);
-        }
-    }
-
-    public function editFeedback(Form $form)
-    {
-        $formAccesses = FormAccess::where('form_id', $form->id)->get();
-
-        $editAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() &&
-                ($access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false);
-        });
-
-        if (!$editAccess || $form->stage_id !== 3 || app('user_role') !== 'Auditee') {
-            abort(403);
-        }
-
-        $submitAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() && $access->position === 'Pimpinan';
-        });
-
-        $auditees = $formAccesses->filter(function ($access) {
-            return $access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Pimpinan' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
-        });
-
-        $auditors = $formAccesses->filter(function ($access) {
-            return $access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Ketua' ? 0 : (intval(str_replace('Anggota', '', $access->position)) ?: 1);
-        });
-
-        $formAudits = FormAudit::with([
-            'indicator.competency.standard.category'
-        ])->where('form_id', $form->id)->get();
-
-        $grouped = $formAudits->groupBy(function ($item) {
-            return $item->indicator?->competency?->standard?->category?->id ?? null;
-        });
-
-        $statuses = Status::orderBy('id', 'desc')->get();
-
-        return view('forms.edit-feedback', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
-    }
-
-    public function updateFeedback(Request $request, Form $form)
-    {
-        if ($request->input('action') === 'submit') {
-
-            $indicators = $request->input('indicators');
-
-            foreach ($indicators as $indicator) {
-                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
-
-                $indicator['feedback'] = $indicator['feedback'] === "" ? 1 : $indicator['feedback'];
-                $code = $indicator['code'];
-
-                Validator::make($indicator, [
-                    "id" => 'required|integer|exists:form_audits,id',
-                    "validation" => 'exclude_if:entry,Disable|required|string',
-                    "link" => 'exclude_if:entry,Disable|required|string',
-                    "feedback" => 'exclude_if:entry,Disable|required|integer',
-                    "comment" => 'exclude_if:entry,Disable|nullable|string',
-                ])->setAttributeNames([
-                    "validation" => "Validation {$code}",
-                    "link" => "Link {$code}",
-                    "feedback" => "Feedback {$code}",
-                    "comment" => "Comment {$code}",
-                ])->validate();
-
-                FormAudit::updateOrCreate(
-                    ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
-                    [
-                        'feedback' => $indicator['feedback'],
-                    ]
-                );
-            }
-
-            FormTime::updateOrCreate(
-                ['form_id' => $form->id],
-                ['feedback_time' => now()]
-            );
-
-            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
-            Form::updateOrCreate(
-                ['id' => $form->id],
-                ['stage_id' => 4]
-            );
-
-            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} successfully submitted.");
-        } else {
-
-            $indicator = $request->input('indicator');
-
-            // Update the FormAudit entry based on the provided indicator data
-            FormAudit::updateOrCreate(
-                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
-                [
-                    'validation' => $indicator['validation'],
-                    'link' => $indicator['link'],
-                    'feedback' => $indicator['feedback'],
-                    'comment' => $indicator['comment'],
-                ]
-            );
-
-            // Dispatch the event for the updated indicator
-            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
-
-            return response()->json(['message' => "{$indicator['code']} successfully updated."]);
-        }
-    }
-
-    public function editVerification(Form $form)
-    {
-        $formAccesses = FormAccess::where('form_id', $form->id)->get();
-
-        $editAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() &&
-                ($access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false);
-        });
-
-        if (!$editAccess || $form->stage_id !== 4 || app('user_role') !== 'Auditor') {
-            abort(403);
-        }
-
-        $submitAccess = $formAccesses->contains(function ($access) {
-            return $access->user_id === auth()->id() && $access->position === 'Ketua';
-        });
-
-        $auditees = $formAccesses->filter(function ($access) {
-            return $access->position === 'Pimpinan' || strpos($access->position, 'PIC') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Pimpinan' ? 0 : (intval(str_replace('PIC', '', $access->position)) ?: 1);
-        });
-
-        $auditors = $formAccesses->filter(function ($access) {
-            return $access->position === 'Ketua' || strpos($access->position, 'Anggota') !== false;
-        })->sortBy(function ($access) {
-            return $access->position === 'Ketua' ? 0 : (intval(str_replace('Anggota', '', $access->position)) ?: 1);
-        });
-
-        $formAudits = FormAudit::with([
-            'indicator.competency.standard.category'
-        ])->where('form_id', $form->id)->get();
-
-        $grouped = $formAudits->groupBy(function ($item) {
-            return $item->indicator?->competency?->standard?->category?->id ?? null;
-        });
-
-        $statuses = Status::orderBy('id', 'desc')->get();
-
-        return view('forms.edit-verification', compact('form', 'submitAccess', 'auditees', 'auditors', 'grouped', 'statuses'));
-    }
-
-    public function updateVerification(Request $request, Form $form)
-    {
-        if ($request->input('action') === 'submit') {
-
-            $indicators = $request->input('indicators');
-
-            foreach ($indicators as $indicator) {
-                $indicator = json_decode($indicator, true); // Mengubah JSON string menjadi array
-
-                $code = $indicator['code'];
-
-                Validator::make($indicator, [
-                    "id" => 'required|integer|exists:form_audits,id',
-                    "verification_status" => 'exclude_if:entry,Disable|required|integer|exists:statuses,id',
-                    "conclusion" => 'exclude_if:entry,Disable|required|string',
-                ])->setAttributeNames([
-                    "verification_status" => "Audit {$code}",
-                    "conclusion" => "Conclusion {$code}",
-                ])->validate();
-            }
-
-            FormTime::updateOrCreate(
-                ['form_id' => $form->id],
-                ['verification_time' => now()]
-            );
-
-            // Gunakan operator ternary untuk menentukan nilai berdasarkan tombol yang ditekan
-            Form::updateOrCreate(
-                ['id' => $form->id],
-                ['stage_id' => 5]
-            );
-
-            return redirect('forms')->with('success', "Form {$form->unit->code} {$form->document->name} successfully submitted.");
-        } else {
-
-            $indicator = $request->input('indicator');
-
-            // Update the FormAudit entry based on the provided indicator data
-            FormAudit::updateOrCreate(
-                ['id' => $indicator['id']], // Cari evaluasi berdasarkan ID
-                [
-                    'verification_status' => $indicator['verification_status'],
-                    'conclusion' => $indicator['conclusion'],
-                ]
-            );
-
-            // Dispatch the event for the updated indicator
-            FormUpdated::dispatch($form->id, $indicator, auth()->user()->name);
-
-            return response()->json(['message' => "{$indicator['code']} successfully updated."]);
-        }
     }
 }
